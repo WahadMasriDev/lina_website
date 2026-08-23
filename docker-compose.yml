@@ -1,8 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/wahadmasridev/lina_website:${APP_TAG:-latest}
     container_name: lina-zakaria-fr
     restart: unless-stopped
 
