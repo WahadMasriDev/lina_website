@@ -1,0 +1,78 @@
+# ============================================================
+#  Lina Zakaria — Hostinger (Apache) configuration
+#  Safe for shared hosting. No risky rewrites:
+#  routing works natively (real index.html files + api.php).
+# ============================================================
+
+# Default document for "/" and "/todo/"
+DirectoryIndex index.html
+
+# Send requests for a directory without a trailing slash to .../ (Apache default)
+DirectorySlash On
+
+# Don't expose auto-generated listings of folders that have no index (e.g. /assets/)
+Options -Indexes
+
+# ---- Force HTTPS (domain is on OVH -> Hostinger) ----
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Also honor X-Forwarded-Proto so this doesn't redirect-loop when running
+  # behind a TLS-terminating reverse proxy (e.g. Traefik) that talks plain
+  # HTTP to the container -- %{HTTPS} alone would always read "off" there.
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteCond %{HTTP_HOST} !^localhost [NC]
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# ---- Branded 404 (returns a real 404 status, not the homepage) ----
+ErrorDocument 404 /404.html
+
+# ---- Gzip / Brotli compression ----
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml \
+    application/javascript text/javascript application/json application/xml \
+    image/svg+xml application/x-font-ttf application/font-woff2
+</IfModule>
+
+# ---- Browser caching ----
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css            "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType text/javascript     "access plus 1 month"
+  ExpiresByType image/svg+xml       "access plus 1 year"
+  ExpiresByType image/jpeg          "access plus 1 year"
+  ExpiresByType image/png           "access plus 1 year"
+  ExpiresByType image/webp          "access plus 1 year"
+  ExpiresByType image/avif          "access plus 1 year"
+  ExpiresByType font/woff2          "access plus 1 year"
+  # HTML and the PHP API must never be cached
+  ExpiresByType text/html           "access plus 0 seconds"
+</IfModule>
+
+# api.php must always run fresh
+<Files "api.php">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-store, no-cache, must-revalidate"
+  </IfModule>
+</Files>
+
+# ---- Security headers ----
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# ---- Block sensitive / dotfiles (keeps .htaccess itself private) ----
+<FilesMatch "^\.(?!well-known)">
+  Require all denied
+</FilesMatch>
+<Files "*.json.bak">
+  Require all denied
+</Files>
+
+# ---- UTF-8 ----
+AddDefaultCharset UTF-8

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ============================================================
+     LINA ZAKARIA — Portfolio homepage  (index.html)
+     Static HTML/CSS/JS. No build step. Upload to /public_html.
+     The NAFAS todo tracker lives at /todo/ and uses api.php.
+     ============================================================ -->
+
+<title>Lina Zakaria — Artistic Director · Graphic & Digital Designer</title>
+<meta name="description" content="Lina Zakaria — aspiring Artistic Director and graphic &amp; digital designer at Reflex Groupe. Branding, visual identity, editorial design and 3D abstract art direction.">
+<meta name="author" content="Lina Zakaria">
+<meta name="theme-color" content="#f4f2ec">
+<link rel="canonical" href="https://lina-zakaria.fr/">
+
+<!-- Open Graph / social -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lina-zakaria.fr/">
+<meta property="og:title" content="Lina Zakaria — Artistic Director · Graphic & Digital Designer">
+<meta property="og:description" content="Branding, visual identity, editorial design and 3D abstract art direction. Currently at Reflex Groupe.">
+<!-- og:image must be an ABSOLUTE url for scrapers. Update the domain if it differs. -->
+<meta property="og:image" content="https://lina-zakaria.fr/assets/works/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- Favicon (uses the monogram mark) -->
+<link rel="icon" type="image/svg+xml" href="assets/logo/lina-logo.svg">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Hanken+Grotesk:wght@300..800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+<!-- if JS is disabled/blocked, reveal-on-scroll content must still show -->
+<noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
+</head>
+
+<body>
+
+<!-- grain + chrome cursor (decorative) -->
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+
+<a class="skip" href="#top">Skip to content</a>
+
+<!-- ───────────────────────────── NAV ───────────────────────────── -->
+<header class="nav" id="nav">
+  <a class="nav__brand" href="#top" aria-label="Lina Zakaria — home">
+    <img src="assets/logo/lina-logo.svg" alt="" width="34" height="34" class="nav__mark">
+    <span class="nav__name">Lina&nbsp;Zakaria</span>
+  </a>
+
+  <nav class="nav__links" id="primary-nav" aria-label="Primary">
+    <a href="#work"><span>01</span> Work</a>
+    <a href="#about"><span>02</span> About</a>
+    <a href="#experience"><span>03</span> Experience</a>
+    <a href="#contact"><span>04</span> Contact</a>
+  </nav>
+
+  <div class="nav__end">
+    <!-- discreet link to the private NAFAS tracker -->
+    <a class="nav__todo" href="todo/" title="Private project board">Todo&nbsp;Board <span aria-hidden="true">↗</span></a>
+    <button class="nav__burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="primary-nav">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="top" tabindex="-1">
+
+  <!-- ─────────────────────────── HERO ─────────────────────────── -->
+  <section class="hero" id="hero">
+    <div class="hero__bg" aria-hidden="true">
+      <!-- hand-built liquid-chrome orb -->
+      <svg class="orb" viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="chrome" cx="38%" cy="32%" r="75%">
+            <stop offset="0%"  stop-color="#ffffff"/>
+            <stop offset="22%" stop-color="#dfe6f4"/>
+            <stop offset="46%" stop-color="#9fb2e0"/>
+            <stop offset="66%" stop-color="#b9a6e6"/>
+            <stop offset="82%" stop-color="#6f7fc4"/>
+            <stop offset="100%" stop-color="#272a4a"/>
+          </radialGradient>
+          <radialGradient id="spec" cx="34%" cy="26%" r="26%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity=".95"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="rim" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stop-color="#7be3ff" stop-opacity=".9"/>
+            <stop offset="50%" stop-color="#b9a6e6" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#c8b6ff" stop-opacity=".8"/>
+          </linearGradient>
+          <filter id="soft"><feGaussianBlur stdDeviation="0.6"/></filter>
+        </defs>
+        <g class="orb__spin">
+          <path filter="url(#soft)" fill="url(#chrome)" d="
+            M300 70
+            C405 70 500 150 520 255
+            C545 380 470 470 360 510
+            C250 548 150 520 105 425
+            C58 326 95 205 190 130
+            C223 104 255 70 300 70 Z"/>
+          <!-- liquid ribbon -->
+          <path fill="none" stroke="url(#rim)" stroke-width="14" stroke-linecap="round" opacity=".85" d="
+            M150 360 C230 300 250 430 340 380 C430 330 400 220 470 250"/>
+          <path fill="none" stroke="#0e1130" stroke-width="6" stroke-linecap="round" opacity=".25" d="
+            M165 250 C245 300 300 230 360 280 C430 338 400 410 300 420"/>
+          <ellipse cx="240" cy="200" rx="120" ry="70" fill="url(#spec)" transform="rotate(-22 240 200)"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="hero__inner">
+      <p class="eyebrow" data-d="0">Aspiring Artistic Director — Graphic &amp; Digital Designer</p>
+
+      <h1 class="hero__title">
+        <span class="reveal-line"><span data-d="1">Lina</span></span>
+        <span class="reveal-line"><em data-d="2">Zakaria</em></span>
+      </h1>
+
+      <p class="hero__lede" data-d="3">
+        Designer building brands, visual systems and 3D-led art direction —
+        currently shaping work at <a href="https://www.reflexgroup.com/en/" target="_blank" rel="noopener">Reflex&nbsp;Groupe<span class="vh"> (opens in new tab)</span></a>.
+        Egyptian, quadrilingual, and endlessly curious.
+      </p>
+
+      <div class="hero__cta" data-d="4">
+        <a class="btn btn--solid" href="#work" data-magnetic>View Portfolio <span aria-hidden="true">↓</span></a>
+        <a class="btn btn--ghost" href="todo/" data-magnetic>Open Todo Board <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+
+    <a class="hero__scroll" href="#work" aria-label="Scroll to work">
+      <span>scroll</span>
+      <span class="hero__scrollline" aria-hidden="true"></span>
+    </a>
+  </section>
+
+  <!-- ──────────────────────── MARQUEE ─────────────────────────── -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span>Branding</span><span class="dot">✦</span>
+      <span>Visual Identity</span><span class="dot">✦</span>
+      <span>Editorial Design</span><span class="dot">✦</span>
+      <span>3D Art Direction</span><span class="dot">✦</span>
+      <span>Digital Design</span><span class="dot">✦</span>
+      <span>Typography</span><span class="dot">✦</span>
+      <span>Branding</span><span class="dot">✦</span>
+      <span>Visual Identity</span><span class="dot">✦</span>
+      <span>Editorial Design</span><span class="dot">✦</span>
+      <span>3D Art Direction</span><span class="dot">✦</span>
+      <span>Digital Design</span><span class="dot">✦</span>
+      <span>Typography</span><span class="dot">✦</span>
+    </div>
+  </div>
+
+  <!-- ───────────────────────── WORK ───────────────────────────── -->
+  <section class="section work" id="work">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="num">01</span> Selected Works</p>
+      <h2 class="section__title">A practice in <em>contrast</em> — soft palettes, sharp ideas.</h2>
+    </div>
+
+    <div class="works">
+      <!-- 1 — Disturbia -->
+      <a class="card card--tall reveal" href="https://www.behance.net/linakzak" target="_blank" rel="noopener" data-tilt>
+        <div class="card__media art art--disturbia">
+          <img src="assets/works/disturbia.jpg" alt="Disturbia — 3D abstract concept art by Lina Zakaria" loading="lazy" onerror="this.remove()">
+        </div>
+        <div class="card__meta">
+          <div class="card__row"><span class="card__no">01</span><span class="card__cat">3D · Concept Art</span></div>
+          <h3 class="card__title">Disturbia</h3>
+          <span class="card__view">View project <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></span>
+        </div>
+      </a>
+
+      <!-- 2 — Equilibrium -->
+      <a class="card reveal" href="https://www.behance.net/linakzak" target="_blank" rel="noopener" data-tilt>
+        <div class="card__media art art--equilibrium">
+          <img src="assets/works/equilibrium.jpg" alt="Equilibrium — 3D abstract concept art by Lina Zakaria" loading="lazy" onerror="this.remove()">
+        </div>
+        <div class="card__meta">
+          <div class="card__row"><span class="card__no">02</span><span class="card__cat">3D · Concept Art</span></div>
+          <h3 class="card__title">Equilibrium</h3>
+          <span class="card__view">View project <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></span>
+        </div>
+      </a>
+
+      <!-- 3 — Outcast -->
+      <a class="card reveal" href="https://www.behance.net/linakzak" target="_blank" rel="noopener" data-tilt>
+        <div class="card__media art art--outcast">
+          <img src="assets/works/outcast.jpg" alt="Outcast — typography & editorial design by Lina Zakaria" loading="lazy" onerror="this.remove()">
+          <span class="art__type" aria-hidden="true">Outcast</span>
+        </div>
+        <div class="card__meta">
+          <div class="card__row"><span class="card__no">03</span><span class="card__cat">Typography · Editorial</span></div>
+          <h3 class="card__title">Outcast</h3>
+          <span class="card__view">View project <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></span>
+        </div>
+      </a>
+
+      <!-- 4 — Portfolio 2024 -->
+      <a class="card card--wide reveal" href="https://www.behance.net/gallery/190862649/Graphic-design-PORTFOLIO-2024-Lina-Zakaria" target="_blank" rel="noopener" data-tilt>
+        <div class="card__media art art--portfolio">
+          <img src="assets/works/portfolio-2024.jpg" alt="Graphic Design Portfolio 2024 — Lina Zakaria" loading="lazy" onerror="this.remove()">
+        </div>
+        <div class="card__meta">
+          <div class="card__row"><span class="card__no">04</span><span class="card__cat">Selected Works · 2024</span></div>
+          <h3 class="card__title">Graphic Design Portfolio</h3>
+          <span class="card__view">Open the full case study on Behance <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></span>
+        </div>
+      </a>
+    </div>
+
+    <a class="work__all reveal" href="https://www.behance.net/linakzak" target="_blank" rel="noopener" data-magnetic>
+      See everything on Behance <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span>
+    </a>
+  </section>
+
+  <!-- ───────────────────────── ABOUT ──────────────────────────── -->
+  <section class="section about" id="about">
+    <div class="about__grid">
+      <div class="about__head reveal">
+        <p class="eyebrow"><span class="num">02</span> About</p>
+        <figure class="about__portrait">
+          <div class="art art--portrait">
+            <img src="assets/photos/lina-portrait.jpg" alt="Portrait of Lina Zakaria" loading="lazy" onerror="this.remove()">
+          </div>
+          <figcaption>Lina Zakaria — Caen / Paris</figcaption>
+        </figure>
+      </div>
+
+      <div class="about__body">
+        <p class="about__lead reveal">
+          I’m <strong>Lina</strong> — a graphic &amp; digital designer growing into <em>artistic direction</em>.
+          I shape brands as complete worlds: identity, editorial systems, digital surfaces,
+          and the experimental 3D imagery that gives them attitude.
+        </p>
+        <p class="reveal">
+          My approach is multicultural by nature — Egyptian, raised between countries, and quadrilingual
+          (Arabic, French, English, Spanish). Curiosity carries every project to its edge: I value teamwork
+          but work just as comfortably on my own, always looking for the cleanest solution to the messiest problem.
+        </p>
+
+        <ul class="disc reveal">
+          <li>Branding &amp; Visual Identity</li>
+          <li>Editorial &amp; Print Design</li>
+          <li>Digital &amp; UI Design</li>
+          <li>3D Abstract Art Direction</li>
+          <li>Typography</li>
+          <li>Creative Direction</li>
+        </ul>
+
+        <ul class="tools reveal" aria-label="Tools">
+          <li>Photoshop</li><li>Illustrator</li><li>InDesign</li>
+          <li>After Effects</li><li>XD</li><li>Blender</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────── EXPERIENCE ───────────────────────── -->
+  <section class="section exp" id="experience">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="num">03</span> Experience</p>
+      <h2 class="section__title">Where the <em>work</em> happens.</h2>
+    </div>
+
+    <ol class="timeline">
+      <li class="tl reveal">
+        <span class="tl__year">2024 — Now</span>
+        <div class="tl__body">
+          <h3>Reflex Groupe <span class="tl__role">· Graphic &amp; Digital Designer</span></h3>
+          <p>Designing brand and digital assets across the group — building visual systems,
+             editorial layouts and campaign material while moving toward art direction.</p>
+        </div>
+      </li>
+      <li class="tl reveal">
+        <span class="tl__year">2023 — 2024</span>
+        <div class="tl__body">
+          <h3>Al Alhmadi Est. Group <span class="tl__role">· Branding</span></h3>
+          <p>Full branding of a private dermatology centre and the visual overhaul of its hospital identity.</p>
+        </div>
+      </li>
+      <li class="tl reveal">
+        <span class="tl__year">2023 — 2024</span>
+        <div class="tl__body">
+          <h3>European Commission Competition <span class="tl__role">· 3rd Prize</span></h3>
+          <p>Awarded third place in a European Commission design competition.</p>
+        </div>
+      </li>
+      <li class="tl reveal">
+        <span class="tl__year">2023</span>
+        <div class="tl__body">
+          <h3>Musée d’Initiation, Caen <span class="tl__role">· Internship</span></h3>
+          <p>Design internship supporting the museum’s discovery programme.</p>
+        </div>
+      </li>
+      <li class="tl reveal">
+        <span class="tl__year">2020 — 2024</span>
+        <div class="tl__body">
+          <h3>BRASSART, Caen <span class="tl__role">· Bachelor, Graphic Design</span></h3>
+          <p>Bachelor in Graphic &amp; Digital Design.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ──────────────────────── CONTACT ─────────────────────────── -->
+  <section class="section contact" id="contact">
+    <div class="contact__inner">
+      <p class="eyebrow reveal"><span class="num">04</span> Contact</p>
+      <h2 class="contact__title reveal">Let’s make something <em>worth remembering.</em></h2>
+      <a class="contact__mail reveal" href="mailto:lina.zakariaa@gmail.com" data-magnetic>lina.zakariaa@gmail.com</a>
+
+      <ul class="contact__links reveal">
+        <li><a href="https://www.behance.net/linakzak" target="_blank" rel="noopener">Behance <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></a></li>
+        <li><a href="https://www.linkedin.com/in/lina-zakaria/" target="_blank" rel="noopener">LinkedIn <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></a></li>
+        <li><a href="https://www.instagram.com/linakzak/" target="_blank" rel="noopener">Instagram <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></a></li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<!-- ───────────────────────── FOOTER ─────────────────────────── -->
+<footer class="foot">
+  <div class="foot__row">
+    <a class="foot__brand" href="#top">
+      <img src="assets/logo/lina-logo.svg" alt="" width="28" height="28">
+      <span>Lina Zakaria</span>
+    </a>
+    <p class="foot__copy">© <span id="year">2026</span> Lina Zakaria — All rights reserved.</p>
+    <a class="foot__todo" href="todo/">Project board ↗</a>
+  </div>
+</footer>
+
+<script src="script.js" defer></script>
+</body>
+</html>
