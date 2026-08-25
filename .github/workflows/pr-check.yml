@@ -1,0 +1,21 @@
+name: PR check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-only:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Builds the full multi-stage Dockerfile (Next.js build + PHP/Apache)
+      # to catch broken builds before merge. Does NOT push anywhere --
+      # that only happens on the build-and-deploy workflow, on push to main.
+      - name: Build image (no push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false

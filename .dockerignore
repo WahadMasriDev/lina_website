@@ -1,5 +1,9 @@
 .git
 _to_delete
 .env
+env.local.php
 *.md
 todo
+web/node_modules
+web/.next
+web/out
