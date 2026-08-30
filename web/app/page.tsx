@@ -4,6 +4,7 @@ import ProjectSection from "./components/ProjectSection";
 const projects = [
   {
     image: "/images/cheval-blanc.png",
+    video: "/videos/cheval-blanc.mp4",
     name: "CHEVAL BLANC",
     subtitle: "Hotel de luxe à la samaritaine, LVMH",
   },

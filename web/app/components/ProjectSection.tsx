@@ -1,7 +1,12 @@
+"use client";
+
+import { useRef, useState } from "react";
+
 type ProjectSectionProps = {
   image: string;
   name: string;
   subtitle: string;
+  video?: string;
   priority?: boolean;
 };
 
@@ -16,17 +21,54 @@ export default function ProjectSection({
   image,
   name,
   subtitle,
+  video,
   priority = false,
 }: ProjectSectionProps) {
+  const [hovering, setHovering] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleEnter = () => {
+    if (!video) return;
+    setHovering(true);
+    videoRef.current?.play().catch(() => {});
+  };
+
+  const handleLeave = () => {
+    if (!video) return;
+    setHovering(false);
+    videoRef.current?.pause();
+    if (videoRef.current) videoRef.current.currentTime = 0;
+  };
+
   return (
-    <section className="relative w-full aspect-[1864/978] overflow-hidden">
+    <section
+      className="relative w-full aspect-[1864/978] overflow-hidden"
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+    >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={image}
         alt={name}
         loading={priority ? "eager" : "lazy"}
-        className="absolute inset-0 h-full w-full object-cover"
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+          hovering && video ? "opacity-0" : "opacity-100"
+        }`}
       />
+
+      {video && (
+        <video
+          ref={videoRef}
+          src={video}
+          muted
+          loop
+          playsInline
+          preload="none"
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+            hovering ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      )}
 
       <div
         aria-hidden

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import LoadingScreen from "./components/LoadingScreen";
 
 // Using system fonts for the scaffold instead of next/font/google — that
 // fetches from Google Fonts at build time, which some CI/offline
@@ -14,7 +15,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        <LoadingScreen />
+        {children}
+      </body>
     </html>
   );
 }
