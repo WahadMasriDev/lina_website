@@ -1,14 +1,18 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ProjectSectionProps = {
   image: string;
   name: string;
   subtitle: string;
   video?: string;
+  /** Extra photos to crossfade through on hover, for projects with no video yet. */
+  images?: readonly string[];
   priority?: boolean;
 };
+
+const MONTAGE_INTERVAL_MS = 1400;
 
 // The Figma design overlays a soft dark gradient ("Vector") on top of each
 // hero photo, rising from the bottom edge, before the text sits on it. The
@@ -22,22 +26,45 @@ export default function ProjectSection({
   name,
   subtitle,
   video,
+  images,
   priority = false,
 }: ProjectSectionProps) {
   const [hovering, setHovering] = useState(false);
+  const [montageIndex, setMontageIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  const montage = images && images.length > 0 ? [image, ...images] : null;
+
+  useEffect(() => {
+    if (!hovering || !montage) return;
+    const id = setInterval(() => {
+      setMontageIndex((i) => (i + 1) % montage.length);
+    }, MONTAGE_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [hovering, montage]);
+
   const handleEnter = () => {
-    if (!video) return;
-    setHovering(true);
-    videoRef.current?.play().catch(() => {});
+    if (video) {
+      setHovering(true);
+      videoRef.current?.play().catch(() => {});
+      return;
+    }
+    if (montage) {
+      setHovering(true);
+    }
   };
 
   const handleLeave = () => {
-    if (!video) return;
-    setHovering(false);
-    videoRef.current?.pause();
-    if (videoRef.current) videoRef.current.currentTime = 0;
+    if (video) {
+      setHovering(false);
+      videoRef.current?.pause();
+      if (videoRef.current) videoRef.current.currentTime = 0;
+      return;
+    }
+    if (montage) {
+      setHovering(false);
+      setMontageIndex(0);
+    }
   };
 
   return (
@@ -46,15 +73,30 @@ export default function ProjectSection({
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={image}
-        alt={name}
-        loading={priority ? "eager" : "lazy"}
-        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-          hovering && video ? "opacity-0" : "opacity-100"
-        }`}
-      />
+      {montage ? (
+        montage.map((src, i) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={src}
+            src={src}
+            alt={name}
+            loading={priority && i === 0 ? "eager" : "lazy"}
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+              i === (hovering ? montageIndex : 0) ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        ))
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={image}
+          alt={name}
+          loading={priority ? "eager" : "lazy"}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+            hovering && video ? "opacity-0" : "opacity-100"
+          }`}
+        />
+      )}
 
       {video && (
         <video

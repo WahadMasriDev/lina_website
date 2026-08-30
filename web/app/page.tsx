@@ -1,6 +1,11 @@
 import Header from "./components/Header";
 import ProjectSection from "./components/ProjectSection";
+import Footer from "./components/Footer";
 
+// Projects with more than one usable photo in their assets folder get a
+// hover montage (crossfading through the extra shots) as a stand-in for a
+// real video. McIntosh, HB Antwerp and Infiniment Coty only ever had the one
+// landing photo -- nothing to montage until more assets show up for them.
 const projects = [
   {
     image: "/images/cheval-blanc.png",
@@ -10,11 +15,13 @@ const projects = [
   },
   {
     image: "/images/solcotton.png",
+    images: ["/images/solcotton-2.jpg", "/images/solcotton-3.jpg"],
     name: "SOLCOTTON",
     subtitle: "Marque de cotton de luxe",
   },
   {
     image: "/images/bose-bmw.png",
+    images: ["/images/bose-bmw-2.jpg", "/images/bose-bmw-3.jpg"],
     name: "BOSE X BMW",
     subtitle: "Interior design in Bejing",
   },
@@ -25,6 +32,10 @@ const projects = [
   },
   {
     image: "/images/psg-maison-shanghai.png",
+    images: [
+      "/images/psg-maison-shanghai-2.jpg",
+      "/images/psg-maison-shanghai-3.jpg",
+    ],
     name: "PSG X LA MAISON SHANGHAI",
     subtitle: "Interior design project",
   },
@@ -49,6 +60,7 @@ export default function Home() {
           <ProjectSection key={project.name} {...project} />
         ))}
       </div>
+      <Footer />
     </div>
   );
 }
