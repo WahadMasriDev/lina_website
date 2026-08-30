@@ -160,14 +160,17 @@ export default function ProjectSection({
 
       <div className="absolute inset-x-0 bottom-10 flex items-end justify-between px-4 text-white sm:bottom-16 sm:px-8 md:bottom-20">
         <div>
-          <p className="text-xl sm:text-2xl md:text-[33px] leading-normal">
-            THIS IS <span className="font-bold">{name}</span>
+          {/* Figma: 'Inter', 400, 33.256px / 40px line-height */}
+          <p className="text-xl font-normal sm:text-2xl md:text-[33.256px] md:leading-[40px]">
+            THIS IS {name}
           </p>
-          <p className="mt-2 text-base sm:text-lg md:text-2xl leading-normal text-white/90">
+          {/* Figma: 'Inter', 400, 24px / 29px line-height */}
+          <p className="mt-2 text-base font-normal leading-normal text-white/90 md:text-[24px] md:leading-[29px]">
             {subtitle}
           </p>
         </div>
-        <p className="hidden sm:block shrink-0 text-sm md:text-[20px] leading-normal text-white/90">
+        {/* Figma: 'Inter', 400, 20.568px / 25px line-height */}
+        <p className="hidden shrink-0 text-sm font-normal text-white/90 sm:block md:text-[20.568px] md:leading-[25px]">
           explore more
         </p>
       </div>

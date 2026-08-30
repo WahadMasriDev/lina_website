@@ -10,7 +10,13 @@ export default function Header() {
         />
       </div>
 
-      <nav className="hidden md:flex w-[360px] items-center justify-between text-[15px] text-white">
+      {/*
+        Figma: 'Acumin Variable Concept', weight 194, 15px/18px. That's a
+        paid Adobe Fonts family we can't self-host the way we did Inter --
+        falling back to the site sans-serif stack at a light weight until
+        real font files are provided.
+      */}
+      <nav className="hidden md:flex w-[360px] items-center justify-between text-[15px] leading-[18px] font-light text-white">
         <a href="#about" className="hover:opacity-70">
           ABOUT
         </a>
