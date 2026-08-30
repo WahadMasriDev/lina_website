@@ -42,7 +42,7 @@ const projects = [
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col items-center gap-5 bg-black px-4 sm:px-8">
+    <div className="flex min-h-screen flex-col items-center gap-5 bg-black px-4 pt-[31px] pb-[31px] sm:px-8">
       <Header />
       <div className="flex w-full flex-col gap-5">
         {projects.map((project) => (
