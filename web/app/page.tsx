@@ -43,9 +43,11 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col items-center bg-black px-4 sm:px-8">
       <Header />
-      {projects.map((project) => (
-        <ProjectSection key={project.name} {...project} />
-      ))}
+      <div className="flex w-full flex-col gap-5">
+        {projects.map((project) => (
+          <ProjectSection key={project.name} {...project} />
+        ))}
+      </div>
     </div>
   );
 }

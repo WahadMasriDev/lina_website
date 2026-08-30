@@ -5,13 +5,13 @@ type ProjectSectionProps = {
   priority?: boolean;
 };
 
-// The Figma design overlays a soft diagonal dark gradient ("Vector") on top of
-// each hero photo before the text sits on it. The real gradient asset
-// couldn't be pulled from Figma this pass (MCP tool-call limit was hit mid
-// fetch), so this reproduces the same visual — a diagonal multiply-blend
-// darkening band running through the lower third — with a CSS gradient
-// instead of the exported asset. Swap the `overlay` div for an <img> of the
-// real asset if/when it's fetched.
+// The Figma design overlays a soft dark gradient ("Vector") on top of each
+// hero photo, rising from the bottom edge, before the text sits on it. The
+// real gradient asset couldn't be pulled from Figma this pass (MCP tool-call
+// limit was hit mid fetch), so this reproduces the same visual — a
+// bottom-up multiply-blend darkening — with a CSS gradient instead of the
+// exported asset. Swap the `overlay` div for an <img> of the real asset
+// if/when it's fetched.
 export default function ProjectSection({
   image,
   name,
@@ -33,7 +33,7 @@ export default function ProjectSection({
         className="absolute inset-x-0 bottom-0 h-2/3 mix-blend-multiply"
         style={{
           background:
-            "linear-gradient(115deg, transparent 40%, rgba(10,10,12,0.75) 62%, rgba(10,10,12,0.35) 78%, transparent 92%)",
+            "linear-gradient(to top, rgba(10,10,12,0.85) 0%, rgba(10,10,12,0.55) 45%, transparent 100%)",
         }}
       />
 
