@@ -160,9 +160,10 @@ export default function ProjectSection({
 
       <div className="absolute inset-x-0 bottom-10 flex items-end justify-between px-4 text-white sm:bottom-16 sm:px-8 md:bottom-20">
         <div>
-          {/* Figma: 'Inter', 400, 33.256px / 40px line-height */}
+          {/* Figma: 'Inter', 33.256px / 40px line-height -- "THIS IS " is
+              regular (400), the project name is bold (700). */}
           <p className="text-xl font-normal sm:text-2xl md:text-[33.256px] md:leading-[40px]">
-            THIS IS {name}
+            THIS IS <span className="font-bold">{name}</span>
           </p>
           {/* Figma: 'Inter', 400, 24px / 29px line-height */}
           <p className="mt-2 text-base font-normal leading-normal text-white/90 md:text-[24px] md:leading-[29px]">
