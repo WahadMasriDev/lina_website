@@ -31,22 +31,50 @@ export default function ProjectSection({
 }: ProjectSectionProps) {
   const [hovering, setHovering] = useState(false);
   const [montageIndex, setMontageIndex] = useState(0);
+  // Mount the <video> tag lazily, on first hover, rather than always. Some
+  // browsers paint an unloaded <video> element as an opaque black box even
+  // at opacity-0 (a compositor quirk, not a CSS bug) -- with the tag always
+  // present that blacked out the hero photo underneath it permanently. Only
+  // creating the element once we actually need it avoids that entirely.
+  const [videoMounted, setVideoMounted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const montage = images && images.length > 0 ? [image, ...images] : null;
 
   useEffect(() => {
     if (!hovering || !montage) return;
+    // Advance immediately on hover instead of waiting out the first
+    // interval -- the first photo swap should be instant, only the
+    // subsequent ones are paced.
+    setMontageIndex((i) => (i + 1) % montage.length);
     const id = setInterval(() => {
       setMontageIndex((i) => (i + 1) % montage.length);
     }, MONTAGE_INTERVAL_MS);
     return () => clearInterval(id);
-  }, [hovering, montage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- montage is a
+    // fresh array each render; length is what actually matters here.
+  }, [hovering, montage?.length]);
+
+  // Drives actually playing/pausing the <video> element. Runs after React
+  // has committed the DOM (unlike calling play() straight from the
+  // mouseenter handler, which was unreliable the first time the element
+  // mounts -- videoRef.current wasn't consistently populated yet at that
+  // point, so play() silently no-op'd and the video sat at readyState 0
+  // forever, opaque black, having never even issued a network request).
+  useEffect(() => {
+    if (!videoMounted) return;
+    if (hovering) {
+      videoRef.current?.play().catch(() => {});
+    } else {
+      videoRef.current?.pause();
+      if (videoRef.current) videoRef.current.currentTime = 0;
+    }
+  }, [videoMounted, hovering]);
 
   const handleEnter = () => {
     if (video) {
       setHovering(true);
-      videoRef.current?.play().catch(() => {});
+      setVideoMounted(true);
       return;
     }
     if (montage) {
@@ -57,8 +85,6 @@ export default function ProjectSection({
   const handleLeave = () => {
     if (video) {
       setHovering(false);
-      videoRef.current?.pause();
-      if (videoRef.current) videoRef.current.currentTime = 0;
       return;
     }
     if (montage) {
@@ -98,7 +124,7 @@ export default function ProjectSection({
         />
       )}
 
-      {video && (
+      {video && videoMounted && (
         <video
           ref={videoRef}
           src={video}
