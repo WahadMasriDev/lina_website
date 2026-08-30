@@ -3,9 +3,10 @@ import ProjectSection from "./components/ProjectSection";
 import Footer from "./components/Footer";
 
 // Projects with more than one usable photo in their assets folder get a
-// hover montage (crossfading through the extra shots) as a stand-in for a
-// real video. McIntosh, HB Antwerp and Infiniment Coty only ever had the one
-// landing photo -- nothing to montage until more assets show up for them.
+// hover montage (crossfading through the extra shots, never re-showing the
+// thumbnail itself) as a stand-in for a real video. McIntosh and HB Antwerp
+// only ever had the one landing photo -- marked comingSoon until real
+// assets show up. Infiniment Coty isn't happening, so it's not listed here.
 const projects = [
   {
     image: "/images/cheval-blanc.png",
@@ -29,6 +30,7 @@ const projects = [
     image: "/images/mcintosh-virgil-abloh.png",
     name: "MCINTOSH X VIRGIL ABLOH",
     subtitle: "Exposition au Grand Palais de Paris",
+    comingSoon: true,
   },
   {
     image: "/images/psg-maison-shanghai.png",
@@ -43,11 +45,7 @@ const projects = [
     image: "/images/hb-antwerp.png",
     name: "HB ANTWERP",
     subtitle: "Luxury diamond company",
-  },
-  {
-    image: "/images/infiniment-coty.png",
-    name: "INFINIMENT COTY",
-    subtitle: "Marque de parfum de luxe",
+    comingSoon: true,
   },
 ] as const;
 

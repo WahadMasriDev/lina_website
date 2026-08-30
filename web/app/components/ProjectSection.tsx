@@ -7,8 +7,10 @@ type ProjectSectionProps = {
   name: string;
   subtitle: string;
   video?: string;
-  /** Extra photos to crossfade through on hover, for projects with no video yet. */
+  /** Extra photos to crossfade through on hover -- never includes `image` itself. */
   images?: readonly string[];
+  /** No real assets yet -- hover darkens the thumbnail and shows "COMING SOON". */
+  comingSoon?: boolean;
   priority?: boolean;
 };
 
@@ -27,9 +29,13 @@ export default function ProjectSection({
   subtitle,
   video,
   images,
+  comingSoon = false,
   priority = false,
 }: ProjectSectionProps) {
   const [hovering, setHovering] = useState(false);
+  // Index into `images` (the extras only -- the thumbnail `image` is never
+  // part of the rotation, so hovering never just re-shows what's already
+  // on screen).
   const [montageIndex, setMontageIndex] = useState(0);
   // Mount the <video> tag lazily, on first hover, rather than always. Some
   // browsers paint an unloaded <video> element as an opaque black box even
@@ -39,14 +45,14 @@ export default function ProjectSection({
   const [videoMounted, setVideoMounted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const montage = images && images.length > 0 ? [image, ...images] : null;
+  const montage = images && images.length > 0 ? images : null;
 
   useEffect(() => {
     if (!hovering || !montage) return;
-    // Advance immediately on hover instead of waiting out the first
-    // interval -- the first photo swap should be instant, only the
-    // subsequent ones are paced.
-    setMontageIndex((i) => (i + 1) % montage.length);
+    // Land on the first extra photo immediately on hover instead of
+    // waiting out the first interval tick -- only the swaps after that
+    // are paced.
+    setMontageIndex(0);
     const id = setInterval(() => {
       setMontageIndex((i) => (i + 1) % montage.length);
     }, MONTAGE_INTERVAL_MS);
@@ -72,26 +78,15 @@ export default function ProjectSection({
   }, [videoMounted, hovering]);
 
   const handleEnter = () => {
-    if (video) {
-      setHovering(true);
-      setVideoMounted(true);
-      return;
-    }
-    if (montage) {
-      setHovering(true);
-    }
+    setHovering(true);
+    if (video) setVideoMounted(true);
   };
 
   const handleLeave = () => {
-    if (video) {
-      setHovering(false);
-      return;
-    }
-    if (montage) {
-      setHovering(false);
-      setMontageIndex(0);
-    }
+    setHovering(false);
   };
+
+  const showingMontage = hovering && montage;
 
   return (
     <section
@@ -99,30 +94,29 @@ export default function ProjectSection({
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
-      {montage ? (
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={image}
+        alt={name}
+        loading={priority ? "eager" : "lazy"}
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+          (hovering && video) || showingMontage ? "opacity-0" : "opacity-100"
+        }`}
+      />
+
+      {montage &&
         montage.map((src, i) => (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             key={src}
             src={src}
             alt={name}
-            loading={priority && i === 0 ? "eager" : "lazy"}
+            loading="lazy"
             className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-              i === (hovering ? montageIndex : 0) ? "opacity-100" : "opacity-0"
+              hovering && i === montageIndex ? "opacity-100" : "opacity-0"
             }`}
           />
-        ))
-      ) : (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={image}
-          alt={name}
-          loading={priority ? "eager" : "lazy"}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-            hovering && video ? "opacity-0" : "opacity-100"
-          }`}
-        />
-      )}
+        ))}
 
       {video && videoMounted && (
         <video
@@ -146,6 +140,23 @@ export default function ProjectSection({
             "linear-gradient(to top, rgba(10,10,12,0.85) 0%, rgba(10,10,12,0.55) 45%, transparent 100%)",
         }}
       />
+
+      {comingSoon && (
+        <div
+          aria-hidden
+          className={`absolute inset-0 flex items-center justify-center bg-black transition-opacity duration-300 ${
+            hovering ? "opacity-70" : "opacity-0"
+          }`}
+        >
+          <span
+            className={`text-xl font-bold uppercase tracking-[0.3em] text-white transition-opacity delay-100 duration-300 sm:text-2xl ${
+              hovering ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            Coming soon
+          </span>
+        </div>
+      )}
 
       <div className="absolute inset-x-0 bottom-10 flex items-end justify-between px-4 text-white sm:bottom-16 sm:px-8 md:bottom-20">
         <div>
