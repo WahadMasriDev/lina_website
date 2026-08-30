@@ -1,17 +1,13 @@
 export default function Header() {
   return (
     <header className="flex h-[79px] w-full items-center justify-between px-4 sm:px-8">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/logo-mark.png"
-          alt="Lina Zakaria logo mark"
-          className="h-[42px] w-auto"
+          src="/images/logo.svg"
+          alt="Lina Zakaria"
+          className="h-9 w-auto sm:h-11"
         />
-        <div className="leading-tight text-white">
-          <p className="text-xl sm:text-[27px]">LINA</p>
-          <p className="text-xl sm:text-[27px] font-semibold">ZAKARIA</p>
-        </div>
       </div>
 
       <nav className="hidden md:flex w-[360px] items-center justify-between text-[15px] text-white">
