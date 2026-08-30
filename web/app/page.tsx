@@ -1,14 +1,51 @@
+import Header from "./components/Header";
+import ProjectSection from "./components/ProjectSection";
+
+const projects = [
+  {
+    image: "/images/cheval-blanc.png",
+    name: "CHEVAL BLANC",
+    subtitle: "Hotel de luxe à la samaritaine, LVMH",
+  },
+  {
+    image: "/images/solcotton.png",
+    name: "SOLCOTTON",
+    subtitle: "Marque de cotton de luxe",
+  },
+  {
+    image: "/images/bose-bmw.png",
+    name: "BOSE X BMW",
+    subtitle: "Interior design in Bejing",
+  },
+  {
+    image: "/images/mcintosh-virgil-abloh.png",
+    name: "MCINTOSH X VIRGIL ABLOH",
+    subtitle: "Exposition au Grand Palais de Paris",
+  },
+  {
+    image: "/images/psg-maison-shanghai.png",
+    name: "PSG X LA MAISON SHANGHAI",
+    subtitle: "Interior design project",
+  },
+  {
+    image: "/images/hb-antwerp.png",
+    name: "HB ANTWERP",
+    subtitle: "Luxury diamond company",
+  },
+  {
+    image: "/images/infiniment-coty.png",
+    name: "INFINIMENT COTY",
+    subtitle: "Marque de parfum de luxe",
+  },
+] as const;
+
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-6 text-center dark:bg-black">
-      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-        lina-zakaria.fr — new design pending
-      </h1>
-      <p className="mt-3 max-w-md text-zinc-600 dark:text-zinc-400">
-        This is the Next.js scaffold for the redesigned site. Replace this
-        page (and add more under <code>app/</code>) once the Figma design is
-        connected.
-      </p>
+    <div className="flex min-h-screen flex-col items-center bg-black px-4 sm:px-8">
+      <Header />
+      {projects.map((project) => (
+        <ProjectSection key={project.name} {...project} />
+      ))}
     </div>
   );
 }

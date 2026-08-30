@@ -1,0 +1,30 @@
+export default function Header() {
+  return (
+    <header className="flex h-[79px] w-full items-center justify-between px-4 sm:px-8">
+      <div className="flex items-center gap-2">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/logo-mark.png"
+          alt="Lina Zakaria logo mark"
+          className="h-[42px] w-auto"
+        />
+        <div className="leading-tight text-white">
+          <p className="text-xl sm:text-[27px]">LINA</p>
+          <p className="text-xl sm:text-[27px] font-semibold">ZAKARIA</p>
+        </div>
+      </div>
+
+      <nav className="hidden md:flex w-[360px] items-center justify-between text-[15px] text-white">
+        <a href="#about" className="hover:opacity-70">
+          ABOUT
+        </a>
+        <a href="#playground" className="hover:opacity-70">
+          PERSONAL PLAYGROUND
+        </a>
+        <a href="#work" className="hover:opacity-70">
+          WORK
+        </a>
+      </nav>
+    </header>
+  );
+}
