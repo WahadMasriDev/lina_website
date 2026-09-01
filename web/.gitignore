@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+.env*.local
+*.tsbuildinfo
+next-env.d.ts
+
+# Raw source assets Nezar drops in for picking images/videos from --
+# only the processed files that end up in public/ get committed.
+assets/
