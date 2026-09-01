@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Header from "./components/Header";
 import ProjectSection from "./components/ProjectSection";
 import Footer from "./components/Footer";
@@ -55,20 +58,66 @@ const projects = [
 // The landing page (only the landing page -- project detail pages scroll
 // normally) is a full-screen scroll-snap experience: each project takes
 // the whole viewport and scrolling jumps cleanly to the next one, using
-// native CSS scroll-snap for the "stuck, then a smooth jump" feel rather
-// than hijacking wheel events by hand.
+// native CSS scroll-snap (plus `scroll-smooth` so momentum into a snap
+// point eases rather than hard-cuts) for the "stuck, then a smooth jump"
+// feel rather than hijacking wheel events by hand.
+//
+// The header lives outside the snap flow entirely now -- a fixed overlay
+// whose look is driven by scroll position/direction on the container
+// below it: solid black at rest at the very top, gone once you're inside
+// a project, and a small floating translucent pill when you scroll back
+// up a little without reaching the top again.
 export default function Home() {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const lastScrollTop = useRef(0);
+  const [headerMode, setHeaderMode] = useState<"full" | "floating" | "hidden">(
+    "full"
+  );
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const top = el.scrollTop;
+      const goingUp = top < lastScrollTop.current;
+      lastScrollTop.current = top;
+
+      if (top < 40) {
+        setHeaderMode("full");
+      } else if (goingUp) {
+        setHeaderMode("floating");
+      } else {
+        setHeaderMode("hidden");
+      }
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <div className="h-screen w-full snap-y snap-mandatory overflow-y-auto bg-black">
-      <div className="snap-start px-4 pt-[31px] sm:px-8">
-        <Header />
+    <>
+      <Header overlay mode={headerMode} />
+      <div
+        ref={scrollRef}
+        className="h-screen w-full snap-y snap-mandatory scroll-smooth overflow-y-auto bg-black"
+      >
+        {projects.map((project) => (
+          <ProjectSection key={project.name} {...project} />
+        ))}
+        <div className="snap-start px-4 pb-[31px] sm:px-8">
+          <Footer />
+        </div>
       </div>
-      {projects.map((project) => (
-        <ProjectSection key={project.name} {...project} />
-      ))}
-      <div className="snap-start px-4 pb-[31px] sm:px-8">
-        <Footer />
-      </div>
-    </div>
+    </>
   );
 }

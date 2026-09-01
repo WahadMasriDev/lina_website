@@ -19,7 +19,21 @@ type ProjectSectionProps = {
 };
 
 const MONTAGE_INTERVAL_MS = 1400;
-const WAVE_STEP_MS = 150;
+
+// Intro choreography, timed from the moment a section becomes active:
+//  1. dimmed -- card darkens, title invisible.
+//  2. wave   -- title fades in centered over the card and sweeps bold
+//               word by word ("this" -> "is" -> name), ~2s total.
+//  3. transfer -- the title glides down to its resting spot in the
+//               bottom-left corner while the card brightens back up.
+//  4. settled -- subtitle and "explore more" fade in on the completed,
+//               static look (also where hover/press interaction lives).
+// Leaving the section resets everything so scrolling back replays it.
+const WAVE_START_DELAY_MS = 150;
+const WAVE_STEP_MS = 700;
+const WAVE_HOLD_MS = 600; // lets "name" finish bolding before the card unfolds
+const TRANSFER_DURATION_MS = 950;
+const TRANSFER_HOLD_MS = 200;
 
 // The Figma design overlays a soft dark gradient ("Vector") on top of each
 // hero photo, rising from the bottom edge, before the text sits on it. The
@@ -54,34 +68,61 @@ export default function ProjectSection({
 
   // "THIS <wave> IS <wave> NAME" -- each project section is a full-screen
   // scroll-snap panel on the landing page, so "becoming active" (snapped
-  // to, mostly on screen) is the moment to replay this intro: bold sweeps
-  // word by word left to right and settles on the project name, which is
-  // where it stays (matching the static Figma weight). Leaving the section
-  // resets it so scrolling back re-plays the intro.
+  // to, mostly on screen) is the moment to replay the whole intro below.
+  // Leaving the section resets it so scrolling back re-plays it.
   const [wave, setWave] = useState<"idle" | "this" | "is" | "name">("idle");
+  const [phase, setPhase] = useState<
+    "idle" | "dimmed" | "wave" | "transfer" | "settled"
+  >("idle");
 
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
+
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const schedule = (fn: () => void, ms: number) => {
+      timers.push(setTimeout(fn, ms));
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          const t1 = setTimeout(() => setWave("this"), 0);
-          const t2 = setTimeout(() => setWave("is"), WAVE_STEP_MS);
-          const t3 = setTimeout(() => setWave("name"), WAVE_STEP_MS * 2);
-          return () => {
-            clearTimeout(t1);
-            clearTimeout(t2);
-            clearTimeout(t3);
-          };
+        timers.forEach(clearTimeout);
+        timers.length = 0;
+
+        if (!entry.isIntersecting) {
+          setPhase("idle");
+          setWave("idle");
+          return;
         }
+
+        setPhase("dimmed");
         setWave("idle");
+
+        schedule(() => setPhase("wave"), WAVE_START_DELAY_MS);
+        schedule(() => setWave("this"), WAVE_START_DELAY_MS);
+        schedule(() => setWave("is"), WAVE_START_DELAY_MS + WAVE_STEP_MS);
+        schedule(() => setWave("name"), WAVE_START_DELAY_MS + WAVE_STEP_MS * 2);
+
+        const transferAt = WAVE_START_DELAY_MS + WAVE_STEP_MS * 2 + WAVE_HOLD_MS;
+        schedule(() => setPhase("transfer"), transferAt);
+        schedule(
+          () => setPhase("settled"),
+          transferAt + TRANSFER_DURATION_MS + TRANSFER_HOLD_MS
+        );
       },
       { threshold: 0.6 }
     );
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      timers.forEach(clearTimeout);
+      observer.disconnect();
+    };
   }, []);
+
+  const introHidden = phase === "idle" || phase === "dimmed";
+  const centered = phase === "idle" || phase === "dimmed" || phase === "wave";
+  const dimmed = phase === "dimmed" || phase === "wave";
+  const descriptionVisible = phase === "settled";
 
   const montage = images && images.length > 0 ? images : null;
 
@@ -183,6 +224,18 @@ export default function ProjectSection({
         }}
       />
 
+      {/* Intro-only darkening: the card starts dimmed while the title
+          animates centered over it, then brightens back up as the title
+          transfers down to its resting corner. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-black transition-opacity ease-out"
+        style={{
+          opacity: dimmed ? 0.55 : 0,
+          transitionDuration: `${TRANSFER_DURATION_MS}ms`,
+        }}
+      />
+
       {comingSoon && (
         <div
           aria-hidden
@@ -205,7 +258,23 @@ export default function ProjectSection({
         {...(wrapperProps as any)}
         className="absolute inset-x-0 bottom-10 flex items-end justify-between px-4 text-white sm:bottom-16 sm:px-8 md:bottom-20"
       >
-        <div>
+        {/* This block is the "animation" -- it starts hidden and centered
+            (scaled up) over the middle of the card, plays the bold word
+            wave there, then glides down/back to size into its resting
+            bottom-left spot once the wave finishes. The subtitle rides
+            along but stays invisible until settled, so it never flashes
+            at the wrong scale mid-transfer. */}
+        <div
+          style={{
+            transform: centered
+              ? "translate(6vw, -36vh) scale(1.4)"
+              : "translate(0, 0) scale(1)",
+            opacity: introHidden ? 0 : 1,
+            transitionProperty: "transform, opacity",
+            transitionDuration: `${TRANSFER_DURATION_MS}ms, 700ms`,
+            transitionTimingFunction: "cubic-bezier(.16,1,.3,1)",
+          }}
+        >
           {/* Figma: 'Inter', 33.256px / 40px line-height -- "THIS IS " is
               regular (400), the project name is bold (700). The intro wave
               sweeps bold across the three tokens on activation, then rests
@@ -213,31 +282,37 @@ export default function ProjectSection({
               smoothly because Inter Variable supports interpolating it. */}
           <p className="text-xl sm:text-2xl md:text-[33.256px] md:leading-[40px]">
             <span
-              className="inline-block transition-[font-weight] duration-300"
+              className="inline-block transition-[font-weight] duration-500"
               style={{ fontWeight: wave === "this" ? 700 : 400 }}
             >
               THIS
             </span>{" "}
             <span
-              className="inline-block transition-[font-weight] duration-300"
+              className="inline-block transition-[font-weight] duration-500"
               style={{ fontWeight: wave === "is" ? 700 : 400 }}
             >
               IS
             </span>{" "}
             <span
-              className="inline-block transition-[font-weight] duration-300"
+              className="inline-block transition-[font-weight] duration-500"
               style={{ fontWeight: wave === "name" ? 700 : 400 }}
             >
               {name}
             </span>
           </p>
           {/* Figma: 'Inter', 400, 24px / 29px line-height */}
-          <p className="mt-2 text-base font-normal leading-normal text-white/90 md:text-[24px] md:leading-[29px]">
+          <p
+            className="mt-2 text-base font-normal leading-normal text-white/90 transition-opacity duration-500 md:text-[24px] md:leading-[29px]"
+            style={{ opacity: descriptionVisible ? 1 : 0 }}
+          >
             {subtitle}
           </p>
         </div>
         {/* Figma: 'Inter', 400, 20.568px / 25px line-height */}
-        <p className="hidden shrink-0 text-sm font-normal text-white/90 sm:block md:text-[20.568px] md:leading-[25px]">
+        <p
+          className="hidden shrink-0 text-sm font-normal text-white/90 transition-opacity duration-500 sm:block md:text-[20.568px] md:leading-[25px]"
+          style={{ opacity: descriptionVisible ? 1 : 0 }}
+        >
           explore more
         </p>
       </Wrapper>
