@@ -36,11 +36,18 @@ const MEDIA_FADE_MS = 1500;
 // This only ever plays once per section, the first time it's reached --
 // it's an introduction, not a loop, so leaving and coming back later
 // leaves it settled rather than replaying.
-const WAVE_START_DELAY_MS = 150;
+const WAVE_START_DELAY_MS = 1000;
 const WAVE_STEP_MS = 700;
 const WAVE_HOLD_MS = 600; // lets "name" finish bolding before the card unfolds
 const TRANSFER_DURATION_MS = 950;
 const TRANSFER_HOLD_MS = 200;
+
+// A beat of stillness before the video/photo carousel starts, every time
+// a section becomes the active one -- first visit (after the text intro
+// settles) or a repeat one. Without this, media on a repeat visit would
+// start the instant you arrive; this holds it back one second so there's
+// always a still moment first.
+const MEDIA_START_DELAY_MS = 1000;
 
 // The Figma design overlays a soft dark gradient ("Vector") on top of each
 // hero photo, rising from the bottom edge, before the text sits on it. The
@@ -151,11 +158,25 @@ export default function ProjectSection({
   const centered = phase === "idle" || phase === "dimmed" || phase === "wave";
   const dimmed = phase === "dimmed" || phase === "wave";
   const descriptionVisible = phase === "settled";
+  const settledAndVisible = phase === "settled" && inView;
+
   // Once the intro has settled AND the section is actually the one on
   // screen right now, the card's video/photo carousel or "coming soon"
   // plays on its own -- no hover needed, and it stops the moment you
-  // scroll away rather than running forever in the background.
-  const active = phase === "settled" && inView;
+  // scroll away rather than running forever in the background. A short
+  // MEDIA_START_DELAY_MS beat holds it back on every arrival so there's
+  // always a still moment before anything starts moving.
+  const [mediaReady, setMediaReady] = useState(false);
+  useEffect(() => {
+    if (!settledAndVisible) {
+      setMediaReady(false);
+      return;
+    }
+    const id = setTimeout(() => setMediaReady(true), MEDIA_START_DELAY_MS);
+    return () => clearTimeout(id);
+  }, [settledAndVisible]);
+
+  const active = mediaReady;
 
   const montage = images && images.length > 0 ? images : null;
 
