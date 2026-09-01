@@ -159,7 +159,7 @@ export default function Home() {
         {projects.map((project) => (
           <ProjectSection key={project.name} {...project} />
         ))}
-        <ContactSection />
+        <ContactSection images={projects.map((p) => p.image)} />
       </div>
     </>
   );
