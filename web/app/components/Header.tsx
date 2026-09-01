@@ -11,6 +11,8 @@ const LOGO_ICON_HEIGHT = 44; // px, mark to the left
 const LOGO_WORDMARK_HEIGHT = 32; // px, "LINA / ZAKARIA" block, right of the mark
 const LOGO_GAP = 8; // px, space between the mark and the wordmark
 
+const FRAME_FADE_MS = 700;
+
 type HeaderProps = {
   /** Landing page only: always present, full-bleed, flush to the top on
    * every project -- but transparent at rest. The frosted dark backing
@@ -25,18 +27,30 @@ export default function Header({ overlay = false }: HeaderProps) {
 
   return (
     <header
-      className={`flex h-[96px] w-full items-center justify-between px-4 transition-[background,backdrop-filter] duration-[500ms] ease-out sm:px-8 ${
+      className={`relative flex h-[96px] w-full items-center justify-between px-4 sm:px-8 ${
         overlay ? "fixed inset-x-0 top-0 z-50" : ""
-      } ${framed ? "backdrop-blur-md" : ""}`}
-      style={{
-        background: framed
-          ? "linear-gradient(to bottom, rgba(10,10,12,0.62) 0%, rgba(10,10,12,0.34) 70%, rgba(10,10,12,0) 100%)"
-          : "transparent",
-      }}
+      }`}
       onMouseEnter={() => overlay && setHovered(true)}
       onMouseLeave={() => overlay && setHovered(false)}
     >
-      <div className="flex items-center" style={{ gap: LOGO_GAP }}>
+      {/* The gradient + blur are always present -- only their opacity
+          animates. CSS can't smoothly interpolate `background` between
+          "transparent" and a gradient (background-image isn't an
+          animatable property), which is why swapping the value directly
+          used to look instant no matter the transition duration. Fading
+          an always-on layer's opacity is the fix. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 backdrop-blur-md transition-opacity ease-out"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(10,10,12,0.62) 0%, rgba(10,10,12,0.34) 70%, rgba(10,10,12,0) 100%)",
+          opacity: framed ? 1 : 0,
+          transitionDuration: `${FRAME_FADE_MS}ms`,
+        }}
+      />
+
+      <div className="relative flex items-center" style={{ gap: LOGO_GAP }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/logo-icon.svg"
@@ -60,7 +74,7 @@ export default function Header({ overlay = false }: HeaderProps) {
         falling back to the site sans-serif stack at a light weight until
         real font files are provided.
       */}
-      <nav className="hidden md:flex w-[360px] items-center justify-between text-[15px] leading-[18px] font-light text-white">
+      <nav className="relative hidden md:flex w-[360px] items-center justify-between text-[15px] leading-[18px] font-light text-white">
         <a href="#about" className="hover:opacity-70">
           ABOUT
         </a>

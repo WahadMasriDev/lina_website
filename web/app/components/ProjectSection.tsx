@@ -218,7 +218,7 @@ export default function ProjectSection({
   return (
     <section
       ref={sectionRef}
-      className="relative h-screen w-full shrink-0 snap-start overflow-hidden"
+      className="relative h-screen w-full shrink-0 overflow-hidden"
     >
       {/* Every arrival (first time or a repeat visit) gets a soft zoom
           settling down to rest -- this is what actually sells "I just

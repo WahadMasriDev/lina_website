@@ -57,19 +57,25 @@ const projects = [
 ] as const;
 
 // The landing page (only the landing page -- project detail pages scroll
-// normally) is a full-screen, one-project-at-a-time experience. Native
-// scroll-snap turned out to feel too abrupt (a hard cut rather than a
-// glide), so wheel/trackpad input is intercepted here and paged by hand:
-// each tick moves exactly one section, eased in with a slow, deliberate
-// easeInOutCubic over SECTION_ANIMATION_MS, and further input is ignored
-// until that glide finishes. Touch scrolling is left to the browser's own
-// (still snap-mandatory) behaviour.
+// normally) is a full-screen, one-project-at-a-time experience. Wheel/
+// trackpad input is intercepted and paged by hand: each tick moves
+// exactly one section, eased over SECTION_ANIMATION_MS, and further input
+// is ignored until that glide (plus a short cooldown, to swallow
+// trailing momentum from the same physical gesture) finishes.
+//
+// Important: the container must NOT also have CSS scroll-snap turned on.
+// With `scroll-snap-type` set, the browser snaps scrollTop straight to
+// the nearest snap point the instant it's assigned, which was silently
+// overriding this whole rAF loop and making every glide look like an
+// instant jump no matter how long SECTION_ANIMATION_MS was. This is now
+// the only thing driving scroll position on this page.
 //
 // The header is a persistent, full-bleed frosted bar pinned to the top --
 // same look at all times, on every project (see Header.tsx). The native
 // scrollbar is hidden in favour of ProjectNav, a small dot column on the
 // right that tracks the active section and jumps to any other on click.
-const SECTION_ANIMATION_MS = 1500;
+const SECTION_ANIMATION_MS = 1700;
+const WHEEL_COOLDOWN_MS = 350;
 
 function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -81,6 +87,7 @@ export default function Home() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const currentIndexRef = useRef(0);
   const isAnimatingRef = useRef(false);
+  const cooldownUntilRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -109,6 +116,7 @@ export default function Home() {
         rafRef.current = requestAnimationFrame(step);
       } else {
         isAnimatingRef.current = false;
+        cooldownUntilRef.current = performance.now() + WHEEL_COOLDOWN_MS;
         currentIndexRef.current = clamped;
         setActiveIndex(clamped);
       }
@@ -122,7 +130,13 @@ export default function Home() {
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      if (isAnimatingRef.current || Math.abs(e.deltaY) < 2) return;
+      if (
+        isAnimatingRef.current ||
+        performance.now() < cooldownUntilRef.current ||
+        Math.abs(e.deltaY) < 2
+      ) {
+        return;
+      }
       const direction = e.deltaY > 0 ? 1 : -1;
       scrollToIndex(currentIndexRef.current + direction);
     };
@@ -140,12 +154,12 @@ export default function Home() {
       <ProjectNav names={sectionNames} activeIndex={activeIndex} onSelect={scrollToIndex} />
       <div
         ref={scrollRef}
-        className="no-scrollbar h-screen w-full snap-y snap-mandatory overflow-y-auto bg-black"
+        className="no-scrollbar h-screen w-full overflow-y-auto bg-black"
       >
         {projects.map((project) => (
           <ProjectSection key={project.name} {...project} />
         ))}
-        <div className="snap-start px-4 pb-[31px] sm:px-8">
+        <div className="px-4 pb-[31px] sm:px-8">
           <Footer />
         </div>
       </div>
