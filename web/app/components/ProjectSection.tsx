@@ -21,7 +21,7 @@ type ProjectSectionProps = {
 
 const MONTAGE_INTERVAL_MS = 2200;
 const MONTAGE_CROSSFADE_MS = 1400;
-const MEDIA_FADE_MS = 900;
+const MEDIA_FADE_MS = 1500;
 
 // Intro choreography, timed from the moment a section first becomes
 // active:
@@ -82,6 +82,15 @@ export default function ProjectSection({
   // Once the intro has fully played, it's done for good -- scrolling away
   // and back must not replay it or reset the card to dimmed/hidden.
   const hasPlayedRef = useRef(false);
+  // Separate from the above: whether the section is *currently* visible,
+  // tracked every time regardless of hasPlayedRef. The text intro only
+  // ever plays once, but video/carousel playback should still start and
+  // stop with actual visibility every time you scroll to or away from a
+  // project -- otherwise a video left running in the background keeps
+  // playing (or looping) the whole session, so by the time you scroll
+  // back it's landed on some arbitrary mid-loop frame instead of the
+  // beginning.
+  const [inView, setInView] = useState(false);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -96,6 +105,7 @@ export default function ProjectSection({
       ([entry]) => {
         timers.forEach(clearTimeout);
         timers.length = 0;
+        setInView(entry.isIntersecting);
 
         if (!entry.isIntersecting) {
           if (!hasPlayedRef.current) {
@@ -141,14 +151,17 @@ export default function ProjectSection({
   const centered = phase === "idle" || phase === "dimmed" || phase === "wave";
   const dimmed = phase === "dimmed" || phase === "wave";
   const descriptionVisible = phase === "settled";
-  // Once the intro has settled, the card takes over on its own -- no
-  // hover needed for the video/photo carousel or the "coming soon" look.
-  const active = phase === "settled";
+  // Once the intro has settled AND the section is actually the one on
+  // screen right now, the card's video/photo carousel or "coming soon"
+  // plays on its own -- no hover needed, and it stops the moment you
+  // scroll away rather than running forever in the background.
+  const active = phase === "settled" && inView;
 
   const montage = images && images.length > 0 ? images : null;
 
   useEffect(() => {
     if (!active || !montage) return;
+    setMontageIndex(0); // always restart the carousel from the first extra photo
     const id = setInterval(() => {
       setMontageIndex((i) => (i + 1) % montage.length);
     }, MONTAGE_INTERVAL_MS);
@@ -173,13 +186,29 @@ export default function ProjectSection({
   // wasn't consistently populated yet at that point, so play() silently
   // no-op'd and the video sat at readyState 0 forever, opaque black,
   // having never even issued a network request).
+  //
+  // On leaving, the video pauses right away (freezing on its current
+  // frame while the crossfade back to the static image covers it), but
+  // the rewind to the start is deliberately delayed until that fade has
+  // fully finished -- resetting immediately would visibly snap the video
+  // back to frame 0 while it's still partly on screen. By the time the
+  // reset happens it's already hidden, so the next visit always starts
+  // clean from the beginning with nothing to see jump.
   useEffect(() => {
     if (!videoMounted) return;
+    const el = videoRef.current;
+    if (!el) return;
+
     if (active) {
-      videoRef.current?.play().catch(() => {});
-    } else {
-      videoRef.current?.pause();
+      el.play().catch(() => {});
+      return;
     }
+
+    el.pause();
+    const id = setTimeout(() => {
+      el.currentTime = 0;
+    }, MEDIA_FADE_MS + 50);
+    return () => clearTimeout(id);
   }, [videoMounted, active]);
 
   const showingMontage = active && montage;

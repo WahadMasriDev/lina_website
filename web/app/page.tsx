@@ -74,7 +74,7 @@ const projects = [
 // same look at all times, on every project (see Header.tsx). The native
 // scrollbar is hidden in favour of ProjectNav, a small dot column on the
 // right that tracks the active section and jumps to any other on click.
-const SECTION_ANIMATION_MS = 1700;
+const SECTION_ANIMATION_MS = 1500;
 const WHEEL_COOLDOWN_MS = 350;
 
 function easeInOutCubic(t: number) {
