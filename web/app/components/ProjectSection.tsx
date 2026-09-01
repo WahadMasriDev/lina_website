@@ -42,15 +42,6 @@ const WAVE_HOLD_MS = 600; // lets "name" finish bolding before the card unfolds
 const TRANSFER_DURATION_MS = 950;
 const TRANSFER_HOLD_MS = 200;
 
-// Separate from the once-only text intro above: every time a section
-// becomes the active one -- including repeat visits, after the text
-// intro has already played -- its image gets a quick settle-in (a soft
-// zoom easing down to rest). Paired with a high IntersectionObserver
-// threshold (so this only fires once a section has essentially fully
-// arrived, not mid-glide), it reads as "I just scrolled to a new
-// project" every time, not just the first time.
-const ARRIVE_SETTLE_MS = 1100;
-
 // The Figma design overlays a soft dark gradient ("Vector") on top of each
 // hero photo, rising from the bottom edge, before the text sits on it. The
 // real gradient asset couldn't be pulled from Figma this pass (MCP tool-call
@@ -80,7 +71,6 @@ export default function ProjectSection({
   const [videoMounted, setVideoMounted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
-  const mediaWrapRef = useRef<HTMLDivElement | null>(null);
 
   // "THIS <wave> IS <wave> NAME" -- each project section is a full-screen
   // scroll-snap panel on the landing page, so "becoming active" the first
@@ -92,21 +82,6 @@ export default function ProjectSection({
   // Once the intro has fully played, it's done for good -- scrolling away
   // and back must not replay it or reset the card to dimmed/hidden.
   const hasPlayedRef = useRef(false);
-
-  // The recurring "I just arrived" settle cue -- driven imperatively via a
-  // ref rather than React state, so each arrival is a clean single
-  // zoomed-in -> rest motion (jump to scaled-up with no transition, force
-  // a reflow, then transition back down) instead of a state toggle that
-  // would have to animate up AND back down every time.
-  const playArriveSettle = () => {
-    const wrap = mediaWrapRef.current;
-    if (!wrap) return;
-    wrap.style.transition = "none";
-    wrap.style.transform = "scale(1.07)";
-    void wrap.offsetHeight; // force reflow so the jump above isn't animated
-    wrap.style.transition = `transform ${ARRIVE_SETTLE_MS}ms cubic-bezier(.16,1,.3,1)`;
-    wrap.style.transform = "scale(1)";
-  };
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -130,11 +105,8 @@ export default function ProjectSection({
           return;
         }
 
-        // Every arrival gets the settle-in, first visit or not.
-        playArriveSettle();
-
         if (hasPlayedRef.current) {
-          // Already introduced -- stay settled, just replay the arrival cue.
+          // Already introduced -- stay settled, nothing left to do.
           return;
         }
 
@@ -220,11 +192,7 @@ export default function ProjectSection({
       ref={sectionRef}
       className="relative h-screen w-full shrink-0 overflow-hidden"
     >
-      {/* Every arrival (first time or a repeat visit) gets a soft zoom
-          settling down to rest -- this is what actually sells "I just
-          scrolled to a new project" on repeat visits, once the one-time
-          dim+wave intro no longer plays. */}
-      <div ref={mediaWrapRef} className="absolute inset-0">
+      <div className="absolute inset-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={image}
