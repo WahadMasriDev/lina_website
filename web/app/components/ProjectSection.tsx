@@ -364,10 +364,32 @@ export default function ProjectSection({
             at the wrong scale mid-transfer. */}
         <div
           style={{
+            // Horizontal centering used to be a flat `6vw` translate, tuned
+            // by eye against "CHEVAL BLANC". That's a fixed distance, not
+            // a position -- it doesn't account for how wide the text
+            // actually is, so a longer name (e.g. "MCINTOSH X VIRGIL
+            // ABLOH") scaled up 1.4x just ran off the left edge and got
+            // clipped by the section's overflow-hidden. `calc(50vw - 50%)`
+            // fixes that: percentages in a transform always resolve
+            // against the element's own natural (untransformed) width, so
+            // this recenters correctly no matter how long the name is,
+            // regardless of the 1.4x scale riding along in the same
+            // transform.
             transform: centered
-              ? "translate(6vw, -36vh) scale(1.4)"
+              ? "translate(calc(50vw - 50%), -36vh) scale(1.4)"
               : "translate(0, 0) scale(1)",
             opacity: introHidden ? 0 : 1,
+            // Centering the box doesn't help if the box itself, once
+            // scaled 1.4x, is simply wider than the screen -- a long name
+            // like "MCINTOSH X VIRGIL ABLOH" on a phone still overflowed
+            // both edges even perfectly centered. Capping the *pre-scale*
+            // width to 65vw guarantees the scaled result (65vw * 1.4 =
+            // 91vw) always fits, and since text wraps by default, a name
+            // that hits the cap just breaks onto a second line instead of
+            // running off-screen. Centered text-align keeps a wrapped
+            // title looking intentional rather than ragged.
+            maxWidth: centered ? "65vw" : "none",
+            textAlign: centered ? "center" : "left",
             transitionProperty: "transform, opacity",
             transitionDuration: `${TRANSFER_DURATION_MS}ms, 700ms`,
             transitionTimingFunction: "cubic-bezier(.16,1,.3,1)",
