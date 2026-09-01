@@ -62,17 +62,16 @@ const projects = [
 // point eases rather than hard-cuts) for the "stuck, then a smooth jump"
 // feel rather than hijacking wheel events by hand.
 //
-// The header lives outside the snap flow entirely now -- a fixed overlay
-// whose look is driven by scroll position/direction on the container
-// below it: solid black at rest at the very top, gone once you're inside
-// a project, and a small floating translucent pill when you scroll back
-// up a little without reaching the top again.
+// The header lives outside the snap flow entirely now -- a fixed overlay,
+// transparent by default (just the white logo/nav floating over whatever
+// project is behind it), that fades/slides away while a project fills the
+// screen and comes back the moment you're at the top or scroll up a
+// little. It only darkens with a backing box on direct hover (see
+// Header.tsx), never just from scrolling.
 export default function Home() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const lastScrollTop = useRef(0);
-  const [headerMode, setHeaderMode] = useState<"full" | "floating" | "hidden">(
-    "full"
-  );
+  const [headerHidden, setHeaderHidden] = useState(false);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -85,13 +84,7 @@ export default function Home() {
       const goingUp = top < lastScrollTop.current;
       lastScrollTop.current = top;
 
-      if (top < 40) {
-        setHeaderMode("full");
-      } else if (goingUp) {
-        setHeaderMode("floating");
-      } else {
-        setHeaderMode("hidden");
-      }
+      setHeaderHidden(top >= 40 && !goingUp);
     };
     const onScroll = () => {
       if (!ticking) {
@@ -106,7 +99,7 @@ export default function Home() {
 
   return (
     <>
-      <Header overlay mode={headerMode} />
+      <Header overlay hidden={headerHidden} />
       <div
         ref={scrollRef}
         className="h-screen w-full snap-y snap-mandatory scroll-smooth overflow-y-auto bg-black"

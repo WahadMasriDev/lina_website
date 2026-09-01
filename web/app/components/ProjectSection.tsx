@@ -20,15 +20,19 @@ type ProjectSectionProps = {
 
 const MONTAGE_INTERVAL_MS = 1400;
 
-// Intro choreography, timed from the moment a section becomes active:
-//  1. dimmed -- card darkens, title invisible.
+// Intro choreography, timed from the moment a section first becomes
+// active:
+//  1. dimmed -- card darkens, title invisible, video/photo carousel
+//               hovering disabled.
 //  2. wave   -- title fades in centered over the card and sweeps bold
 //               word by word ("this" -> "is" -> name), ~2s total.
 //  3. transfer -- the title glides down to its resting spot in the
 //               bottom-left corner while the card brightens back up.
 //  4. settled -- subtitle and "explore more" fade in on the completed,
-//               static look (also where hover/press interaction lives).
-// Leaving the section resets everything so scrolling back replays it.
+//               static look, and hover/press interaction switches on.
+// This only ever plays once per section, the first time it's reached --
+// it's an introduction, not a loop, so leaving and coming back later
+// leaves it settled rather than replaying.
 const WAVE_START_DELAY_MS = 150;
 const WAVE_STEP_MS = 700;
 const WAVE_HOLD_MS = 600; // lets "name" finish bolding before the card unfolds
@@ -67,13 +71,15 @@ export default function ProjectSection({
   const sectionRef = useRef<HTMLElement | null>(null);
 
   // "THIS <wave> IS <wave> NAME" -- each project section is a full-screen
-  // scroll-snap panel on the landing page, so "becoming active" (snapped
-  // to, mostly on screen) is the moment to replay the whole intro below.
-  // Leaving the section resets it so scrolling back re-plays it.
+  // scroll-snap panel on the landing page, so "becoming active" the first
+  // time (snapped to, mostly on screen) is the moment this intro plays.
   const [wave, setWave] = useState<"idle" | "this" | "is" | "name">("idle");
   const [phase, setPhase] = useState<
     "idle" | "dimmed" | "wave" | "transfer" | "settled"
   >("idle");
+  // Once the intro has fully played, it's done for good -- scrolling away
+  // and back must not replay it or reset the card to dimmed/hidden.
+  const hasPlayedRef = useRef(false);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -88,6 +94,11 @@ export default function ProjectSection({
       ([entry]) => {
         timers.forEach(clearTimeout);
         timers.length = 0;
+
+        if (hasPlayedRef.current) {
+          // Already introduced -- just stay settled, visible or not.
+          return;
+        }
 
         if (!entry.isIntersecting) {
           setPhase("idle");
@@ -105,10 +116,10 @@ export default function ProjectSection({
 
         const transferAt = WAVE_START_DELAY_MS + WAVE_STEP_MS * 2 + WAVE_HOLD_MS;
         schedule(() => setPhase("transfer"), transferAt);
-        schedule(
-          () => setPhase("settled"),
-          transferAt + TRANSFER_DURATION_MS + TRANSFER_HOLD_MS
-        );
+        schedule(() => {
+          setPhase("settled");
+          hasPlayedRef.current = true;
+        }, transferAt + TRANSFER_DURATION_MS + TRANSFER_HOLD_MS);
       },
       { threshold: 0.6 }
     );
@@ -157,6 +168,9 @@ export default function ProjectSection({
   }, [videoMounted, hovering]);
 
   const handleEnter = () => {
+    // Hold off on the hover video/photo carousel until the name intro has
+    // actually finished playing -- it shouldn't compete with it.
+    if (!hasPlayedRef.current) return;
     setHovering(true);
     if (video) setVideoMounted(true);
   };
@@ -231,7 +245,7 @@ export default function ProjectSection({
         aria-hidden
         className="absolute inset-0 bg-black transition-opacity ease-out"
         style={{
-          opacity: dimmed ? 0.55 : 0,
+          opacity: dimmed ? 0.78 : 0,
           transitionDuration: `${TRANSFER_DURATION_MS}ms`,
         }}
       />
