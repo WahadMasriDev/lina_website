@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "./components/Header";
 import ProjectSection from "./components/ProjectSection";
 import ProjectNav from "./components/ProjectNav";
-import Footer from "./components/Footer";
+import ContactSection from "./components/ContactSection";
 
 // Projects with more than one usable photo in their assets folder get a
 // hover montage (crossfading through the extra shots, never re-showing the
@@ -159,9 +159,7 @@ export default function Home() {
         {projects.map((project) => (
           <ProjectSection key={project.name} {...project} />
         ))}
-        <div className="px-4 pb-[31px] sm:px-8">
-          <Footer />
-        </div>
+        <ContactSection />
       </div>
     </>
   );
