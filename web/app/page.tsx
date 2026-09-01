@@ -7,12 +7,15 @@ import Footer from "./components/Footer";
 // thumbnail itself) as a stand-in for a real video. McIntosh and HB Antwerp
 // only ever had the one landing photo -- marked comingSoon until real
 // assets show up. Infiniment Coty isn't happening, so it's not listed here.
+// `href` only exists on Cheval Blanc for now -- that's the only project
+// with a real detail page built; the others don't link anywhere yet.
 const projects = [
   {
     image: "/images/cheval-blanc.png",
     video: "/videos/cheval-blanc.mp4",
     name: "CHEVAL BLANC",
     subtitle: "Hotel de luxe à la samaritaine, LVMH",
+    href: "/projects/cheval-blanc",
   },
   {
     image: "/images/solcotton.png",
@@ -49,16 +52,23 @@ const projects = [
   },
 ] as const;
 
+// The landing page (only the landing page -- project detail pages scroll
+// normally) is a full-screen scroll-snap experience: each project takes
+// the whole viewport and scrolling jumps cleanly to the next one, using
+// native CSS scroll-snap for the "stuck, then a smooth jump" feel rather
+// than hijacking wheel events by hand.
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col items-center gap-5 bg-black px-4 pt-[31px] pb-[31px] sm:px-8">
-      <Header />
-      <div className="flex w-full flex-col gap-5">
-        {projects.map((project) => (
-          <ProjectSection key={project.name} {...project} />
-        ))}
+    <div className="h-screen w-full snap-y snap-mandatory overflow-y-auto bg-black">
+      <div className="snap-start px-4 pt-[31px] sm:px-8">
+        <Header />
       </div>
-      <Footer />
+      {projects.map((project) => (
+        <ProjectSection key={project.name} {...project} />
+      ))}
+      <div className="snap-start px-4 pb-[31px] sm:px-8">
+        <Footer />
+      </div>
     </div>
   );
 }
