@@ -49,6 +49,16 @@ const TRANSFER_HOLD_MS = 200;
 // always a still moment first.
 const MEDIA_START_DELAY_MS = 1000;
 
+// Which projects have already played their text intro this page load.
+// Deliberately a plain module-level variable, not React state or
+// sessionStorage/localStorage: it lives as long as this JS module does,
+// which means it survives a client-side route navigation away from the
+// landing page and back (Next.js unmounts/remounts the section components,
+// but never re-evaluates the module for that), while still resetting on an
+// actual browser refresh -- a refresh re-runs the module from scratch, so
+// the Set starts empty again exactly like everything else on the page.
+const introPlayedProjects = new Set<string>();
+
 // The Figma design overlays a soft dark gradient ("Vector") on top of each
 // hero photo, rising from the bottom edge, before the text sits on it. The
 // real gradient asset couldn't be pulled from Figma this pass (MCP tool-call
@@ -79,16 +89,25 @@ export default function ProjectSection({
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
 
+  // Already played this project's intro earlier this page load (e.g. it
+  // ran once, then this component unmounted when navigating into the
+  // project's own page and is now remounting on the way back). In that
+  // case skip straight to the finished, settled look -- no dim flash, no
+  // wave replay -- rather than starting from "idle" again.
+  const alreadyPlayed = introPlayedProjects.has(name);
+
   // "THIS <wave> IS <wave> NAME" -- each project section is a full-screen
   // scroll-snap panel on the landing page, so "becoming active" the first
   // time (snapped to, mostly on screen) is the moment this intro plays.
-  const [wave, setWave] = useState<"idle" | "this" | "is" | "name">("idle");
+  const [wave, setWave] = useState<"idle" | "this" | "is" | "name">(
+    alreadyPlayed ? "name" : "idle"
+  );
   const [phase, setPhase] = useState<
     "idle" | "dimmed" | "wave" | "transfer" | "settled"
-  >("idle");
+  >(alreadyPlayed ? "settled" : "idle");
   // Once the intro has fully played, it's done for good -- scrolling away
   // and back must not replay it or reset the card to dimmed/hidden.
-  const hasPlayedRef = useRef(false);
+  const hasPlayedRef = useRef(alreadyPlayed);
   // Separate from the above: whether the section is *currently* visible,
   // tracked every time regardless of hasPlayedRef. The text intro only
   // ever plays once, but video/carousel playback should still start and
@@ -140,6 +159,7 @@ export default function ProjectSection({
         schedule(() => {
           setPhase("settled");
           hasPlayedRef.current = true;
+          introPlayedProjects.add(name);
         }, transferAt + TRANSFER_DURATION_MS + TRANSFER_HOLD_MS);
       },
       // High threshold: only counts as "arrived" once a section has
