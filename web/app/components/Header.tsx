@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 // Logo sizing knobs -- tweak these directly if the lockup looks off
 // against Figma. The two SVGs are each cropped tight to their own real
 // content (no padding), so the height you set here is exactly the
@@ -8,27 +12,29 @@ const LOGO_WORDMARK_HEIGHT = 32; // px, "LINA / ZAKARIA" block, right of the mar
 const LOGO_GAP = 8; // px, space between the mark and the wordmark
 
 type HeaderProps = {
-  /** Landing page only: a persistent, full-bleed frosted bar pinned to
-   * the very top -- flush edge to edge, same look on every project, no
-   * hide/show or hover state. Reference: the "stays in place, fills the
-   * sides" screenshot. */
+  /** Landing page only: always present, full-bleed, flush to the top on
+   * every project -- but transparent at rest. The frosted dark backing
+   * (gradient + blur) only appears while the mouse is directly over the
+   * header, and fades back out the moment it leaves. */
   overlay?: boolean;
 };
 
 export default function Header({ overlay = false }: HeaderProps) {
+  const [hovered, setHovered] = useState(false);
+  const framed = overlay && hovered;
+
   return (
     <header
-      className={`flex h-[96px] w-full items-center justify-between px-4 sm:px-8 ${
-        overlay ? "fixed inset-x-0 top-0 z-50 backdrop-blur-md" : ""
-      }`}
-      style={
-        overlay
-          ? {
-              background:
-                "linear-gradient(to bottom, rgba(10,10,12,0.6) 0%, rgba(10,10,12,0.32) 70%, rgba(10,10,12,0) 100%)",
-            }
-          : undefined
-      }
+      className={`flex h-[96px] w-full items-center justify-between px-4 transition-[background,backdrop-filter] duration-[500ms] ease-out sm:px-8 ${
+        overlay ? "fixed inset-x-0 top-0 z-50" : ""
+      } ${framed ? "backdrop-blur-md" : ""}`}
+      style={{
+        background: framed
+          ? "linear-gradient(to bottom, rgba(10,10,12,0.62) 0%, rgba(10,10,12,0.34) 70%, rgba(10,10,12,0) 100%)"
+          : "transparent",
+      }}
+      onMouseEnter={() => overlay && setHovered(true)}
+      onMouseLeave={() => overlay && setHovered(false)}
     >
       <div className="flex items-center" style={{ gap: LOGO_GAP }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
