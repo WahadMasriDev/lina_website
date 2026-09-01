@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "./components/Header";
 import ProjectSection from "./components/ProjectSection";
+import ProjectNav from "./components/ProjectNav";
 import Footer from "./components/Footer";
 
 // Projects with more than one usable photo in their assets folder get a
@@ -56,53 +57,90 @@ const projects = [
 ] as const;
 
 // The landing page (only the landing page -- project detail pages scroll
-// normally) is a full-screen scroll-snap experience: each project takes
-// the whole viewport and scrolling jumps cleanly to the next one, using
-// native CSS scroll-snap (plus `scroll-smooth` so momentum into a snap
-// point eases rather than hard-cuts) for the "stuck, then a smooth jump"
-// feel rather than hijacking wheel events by hand.
+// normally) is a full-screen, one-project-at-a-time experience. Native
+// scroll-snap turned out to feel too abrupt (a hard cut rather than a
+// glide), so wheel/trackpad input is intercepted here and paged by hand:
+// each tick moves exactly one section, eased in with a slow, deliberate
+// easeInOutCubic over SECTION_ANIMATION_MS, and further input is ignored
+// until that glide finishes. Touch scrolling is left to the browser's own
+// (still snap-mandatory) behaviour.
 //
-// The header lives outside the snap flow entirely now -- a fixed overlay,
-// transparent by default (just the white logo/nav floating over whatever
-// project is behind it), that fades/slides away while a project fills the
-// screen and comes back the moment you're at the top or scroll up a
-// little. It only darkens with a backing box on direct hover (see
-// Header.tsx), never just from scrolling.
+// The header is a persistent, full-bleed frosted bar pinned to the top --
+// same look at all times, on every project (see Header.tsx). The native
+// scrollbar is hidden in favour of ProjectNav, a small dot column on the
+// right that tracks the active section and jumps to any other on click.
+const SECTION_ANIMATION_MS = 1500;
+
+function easeInOutCubic(t: number) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+const sectionNames = [...projects.map((p) => p.name), "CONTACT"] as const;
+
 export default function Home() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const lastScrollTop = useRef(0);
-  const [headerHidden, setHeaderHidden] = useState(false);
+  const currentIndexRef = useRef(0);
+  const isAnimatingRef = useRef(false);
+  const rafRef = useRef<number | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const scrollToIndex = useCallback((index: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const clamped = Math.max(0, Math.min(projects.length, index));
+    const startTop = el.scrollTop;
+    const targetTop = clamped * window.innerHeight;
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
+    if (Math.abs(targetTop - startTop) < 1) {
+      currentIndexRef.current = clamped;
+      setActiveIndex(clamped);
+      return;
+    }
+
+    isAnimatingRef.current = true;
+    const startTime = performance.now();
+
+    const step = (now: number) => {
+      const t = Math.min(1, (now - startTime) / SECTION_ANIMATION_MS);
+      el.scrollTop = startTop + (targetTop - startTop) * easeInOutCubic(t);
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(step);
+      } else {
+        isAnimatingRef.current = false;
+        currentIndexRef.current = clamped;
+        setActiveIndex(clamped);
+      }
+    };
+    rafRef.current = requestAnimationFrame(step);
+  }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
 
-    let ticking = false;
-    const update = () => {
-      ticking = false;
-      const top = el.scrollTop;
-      const goingUp = top < lastScrollTop.current;
-      lastScrollTop.current = top;
-
-      setHeaderHidden(top >= 40 && !goingUp);
-    };
-    const onScroll = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(update);
-      }
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      if (isAnimatingRef.current || Math.abs(e.deltaY) < 2) return;
+      const direction = e.deltaY > 0 ? 1 : -1;
+      scrollToIndex(currentIndexRef.current + direction);
     };
 
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, []);
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [scrollToIndex]);
 
   return (
     <>
-      <Header overlay hidden={headerHidden} />
+      <Header overlay />
+      <ProjectNav names={sectionNames} activeIndex={activeIndex} onSelect={scrollToIndex} />
       <div
         ref={scrollRef}
-        className="h-screen w-full snap-y snap-mandatory scroll-smooth overflow-y-auto bg-black"
+        className="no-scrollbar h-screen w-full snap-y snap-mandatory overflow-y-auto bg-black"
       >
         {projects.map((project) => (
           <ProjectSection key={project.name} {...project} />

@@ -25,3 +25,41 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
 }
+
+/* Custom right-edge project navigator replaces the native scrollbar on the
+   landing page -- see ProjectNav.tsx. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* The active dot in ProjectNav gets a slow, quiet "breathing" pulse so the
+   navigator reads as alive rather than static. */
+@keyframes nav-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.6;
+  }
+}
+
+/* A small nudge on the "explore more" arrow once a card has settled --
+   just enough motion to pull the eye toward it without being loud. */
+@keyframes explore-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateX(6px);
+    opacity: 1;
+  }
+}

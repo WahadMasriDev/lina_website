@@ -8,9 +8,10 @@ type ProjectSectionProps = {
   name: string;
   subtitle: string;
   video?: string;
-  /** Extra photos to crossfade through on hover -- never includes `image` itself. */
+  /** Extra photos to slowly crossfade through, once the intro settles --
+   * never includes `image` itself. */
   images?: readonly string[];
-  /** No real assets yet -- hover darkens the thumbnail and shows "COMING SOON". */
+  /** No real assets yet -- fades to a dark "COMING SOON" once settled. */
   comingSoon?: boolean;
   priority?: boolean;
   /** "explore more" navigates here when set; sections without a built page
@@ -18,18 +19,20 @@ type ProjectSectionProps = {
   href?: string;
 };
 
-const MONTAGE_INTERVAL_MS = 1400;
+const MONTAGE_INTERVAL_MS = 2200;
+const MONTAGE_CROSSFADE_MS = 1400;
+const MEDIA_FADE_MS = 900;
 
 // Intro choreography, timed from the moment a section first becomes
 // active:
-//  1. dimmed -- card darkens, title invisible, video/photo carousel
-//               hovering disabled.
+//  1. dimmed -- card darkens, title invisible.
 //  2. wave   -- title fades in centered over the card and sweeps bold
 //               word by word ("this" -> "is" -> name), ~2s total.
 //  3. transfer -- the title glides down to its resting spot in the
 //               bottom-left corner while the card brightens back up.
 //  4. settled -- subtitle and "explore more" fade in on the completed,
-//               static look, and hover/press interaction switches on.
+//               static look, and the video/photo carousel (or "coming
+//               soon") starts playing on its own -- no hover required.
 // This only ever plays once per section, the first time it's reached --
 // it's an introduction, not a loop, so leaving and coming back later
 // leaves it settled rather than replaying.
@@ -56,10 +59,9 @@ export default function ProjectSection({
   priority = false,
   href,
 }: ProjectSectionProps) {
-  const [hovering, setHovering] = useState(false);
   // Index into `images` (the extras only -- the thumbnail `image` is never
-  // part of the rotation, so hovering never just re-shows what's already
-  // on screen).
+  // part of the rotation, so the carousel never just re-shows what's
+  // already on screen).
   const [montageIndex, setMontageIndex] = useState(0);
   // Mount the <video> tag lazily, on first hover, rather than always. Some
   // browsers paint an unloaded <video> element as an opaque black box even
@@ -134,52 +136,48 @@ export default function ProjectSection({
   const centered = phase === "idle" || phase === "dimmed" || phase === "wave";
   const dimmed = phase === "dimmed" || phase === "wave";
   const descriptionVisible = phase === "settled";
+  // Once the intro has settled, the card takes over on its own -- no
+  // hover needed for the video/photo carousel or the "coming soon" look.
+  const active = phase === "settled";
 
   const montage = images && images.length > 0 ? images : null;
 
   useEffect(() => {
-    if (!hovering || !montage) return;
-    // Land on the first extra photo immediately on hover instead of
-    // waiting out the first interval tick -- only the swaps after that
-    // are paced.
-    setMontageIndex(0);
+    if (!active || !montage) return;
     const id = setInterval(() => {
       setMontageIndex((i) => (i + 1) % montage.length);
     }, MONTAGE_INTERVAL_MS);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- montage is a
     // fresh array each render; length is what actually matters here.
-  }, [hovering, montage?.length]);
+  }, [active, montage?.length]);
+
+  // Mount the <video> tag lazily, once the intro settles, rather than
+  // always. Some browsers paint an unloaded <video> element as an opaque
+  // black box even at opacity-0 (a compositor quirk, not a CSS bug) --
+  // with the tag always present that blacked out the hero photo
+  // underneath it permanently. Only creating the element once it's
+  // actually needed avoids that entirely.
+  useEffect(() => {
+    if (active && video) setVideoMounted(true);
+  }, [active, video]);
 
   // Drives actually playing/pausing the <video> element. Runs after React
-  // has committed the DOM (unlike calling play() straight from the
-  // mouseenter handler, which was unreliable the first time the element
-  // mounts -- videoRef.current wasn't consistently populated yet at that
-  // point, so play() silently no-op'd and the video sat at readyState 0
-  // forever, opaque black, having never even issued a network request).
+  // has committed the DOM (unlike calling play() straight from the mount
+  // effect above, which was unreliable the first render -- videoRef.current
+  // wasn't consistently populated yet at that point, so play() silently
+  // no-op'd and the video sat at readyState 0 forever, opaque black,
+  // having never even issued a network request).
   useEffect(() => {
     if (!videoMounted) return;
-    if (hovering) {
+    if (active) {
       videoRef.current?.play().catch(() => {});
     } else {
       videoRef.current?.pause();
-      if (videoRef.current) videoRef.current.currentTime = 0;
     }
-  }, [videoMounted, hovering]);
+  }, [videoMounted, active]);
 
-  const handleEnter = () => {
-    // Hold off on the hover video/photo carousel until the name intro has
-    // actually finished playing -- it shouldn't compete with it.
-    if (!hasPlayedRef.current) return;
-    setHovering(true);
-    if (video) setVideoMounted(true);
-  };
-
-  const handleLeave = () => {
-    setHovering(false);
-  };
-
-  const showingMontage = hovering && montage;
+  const showingMontage = active && montage;
 
   const Wrapper = href ? Link : "div";
   const wrapperProps = href ? { href } : {};
@@ -188,17 +186,17 @@ export default function ProjectSection({
     <section
       ref={sectionRef}
       className="relative h-screen w-full shrink-0 snap-start overflow-hidden"
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={image}
         alt={name}
         loading={priority ? "eager" : "lazy"}
-        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-          (hovering && video) || showingMontage ? "opacity-0" : "opacity-100"
-        }`}
+        className="absolute inset-0 h-full w-full object-cover transition-opacity ease-out"
+        style={{
+          opacity: (active && video) || showingMontage ? 0 : 1,
+          transitionDuration: `${MEDIA_FADE_MS}ms`,
+        }}
       />
 
       {montage &&
@@ -209,9 +207,11 @@ export default function ProjectSection({
             src={src}
             alt={name}
             loading="lazy"
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-              hovering && i === montageIndex ? "opacity-100" : "opacity-0"
-            }`}
+            className="absolute inset-0 h-full w-full object-cover transition-opacity ease-out"
+            style={{
+              opacity: active && i === montageIndex ? 1 : 0,
+              transitionDuration: `${MONTAGE_CROSSFADE_MS}ms`,
+            }}
           />
         ))}
 
@@ -223,9 +223,11 @@ export default function ProjectSection({
           loop
           playsInline
           preload="none"
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-            hovering ? "opacity-100" : "opacity-0"
-          }`}
+          className="absolute inset-0 h-full w-full object-cover transition-opacity ease-out"
+          style={{
+            opacity: active ? 1 : 0,
+            transitionDuration: `${MEDIA_FADE_MS}ms`,
+          }}
         />
       )}
 
@@ -253,14 +255,19 @@ export default function ProjectSection({
       {comingSoon && (
         <div
           aria-hidden
-          className={`absolute inset-0 flex items-center justify-center bg-black transition-opacity duration-300 ${
-            hovering ? "opacity-70" : "opacity-0"
-          }`}
+          className="absolute inset-0 flex items-center justify-center bg-black transition-opacity ease-out"
+          style={{
+            opacity: active ? 0.7 : 0,
+            transitionDuration: `${MEDIA_FADE_MS}ms`,
+          }}
         >
           <span
-            className={`text-xl font-bold uppercase tracking-[0.3em] text-white transition-opacity delay-100 duration-300 sm:text-2xl ${
-              hovering ? "opacity-100" : "opacity-0"
-            }`}
+            className="text-xl font-bold uppercase tracking-[0.3em] text-white transition-opacity ease-out sm:text-2xl"
+            style={{
+              opacity: active ? 1 : 0,
+              transitionDuration: `${MEDIA_FADE_MS}ms`,
+              transitionDelay: active ? "150ms" : "0ms",
+            }}
           >
             Coming soon
           </span>
@@ -322,13 +329,27 @@ export default function ProjectSection({
             {subtitle}
           </p>
         </div>
-        {/* Figma: 'Inter', 400, 20.568px / 25px line-height */}
-        <p
-          className="hidden shrink-0 text-sm font-normal text-white/90 transition-opacity duration-500 sm:block md:text-[20.568px] md:leading-[25px]"
+        {/* Figma: 'Inter', 400, 20.568px / 25px line-height -- once settled,
+            a small arrow quietly nudges back and forth on a loop to draw
+            the eye toward it as something clickable, rather than sitting
+            fully static. */}
+        <div
+          className="hidden shrink-0 items-center gap-2 text-sm font-normal text-white/90 transition-opacity duration-500 sm:flex md:text-[20.568px] md:leading-[25px]"
           style={{ opacity: descriptionVisible ? 1 : 0 }}
         >
-          explore more
-        </p>
+          <span>explore more</span>
+          <span
+            aria-hidden
+            className="inline-block"
+            style={
+              descriptionVisible
+                ? { animation: "explore-nudge 2.2s ease-in-out infinite" }
+                : undefined
+            }
+          >
+            →
+          </span>
+        </div>
       </Wrapper>
     </section>
   );
