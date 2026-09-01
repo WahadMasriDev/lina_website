@@ -27,25 +27,32 @@ export default function Header({ overlay = false }: HeaderProps) {
 
   return (
     <header
-      className={`relative flex h-[96px] w-full items-center justify-between px-4 sm:px-8 ${
-        overlay ? "fixed inset-x-0 top-0 z-50" : ""
+      className={`flex h-[96px] w-full items-center justify-between px-4 sm:px-8 ${
+        overlay ? "fixed inset-x-0 top-0 z-50" : "relative"
       }`}
       onMouseEnter={() => overlay && setHovered(true)}
       onMouseLeave={() => overlay && setHovered(false)}
     >
-      {/* The gradient + blur are always present -- only their opacity
-          animates. CSS can't smoothly interpolate `background` between
-          "transparent" and a gradient (background-image isn't an
-          animatable property), which is why swapping the value directly
-          used to look instant no matter the transition duration. Fading
-          an always-on layer's opacity is the fix. */}
+      {/* The gradient layer is always mounted -- only its opacity animates
+          (CSS can't interpolate `background` between "transparent" and a
+          gradient at all, which is why toggling that value directly used
+          to look instant). The blur is driven the same way, as an actual
+          blur-radius value going from 0px to 12px, NOT a class being
+          toggled on/off: a `backdrop-blur-md` class applied unconditionally
+          (even "off" at opacity 0) turned out to render as a solid black
+          band the whole time -- backdrop-filter blur at the very top edge
+          of a fixed, viewport-pinned element samples past the edge of the
+          page, and blurring that in most browsers reads as solid black.
+          blur(0px) has nothing to sample, so it can't produce that. */}
       <div
         aria-hidden
-        className="absolute inset-0 backdrop-blur-md transition-opacity ease-out"
+        className="absolute inset-0 transition-[opacity,backdrop-filter] ease-out"
         style={{
           background:
             "linear-gradient(to bottom, rgba(10,10,12,0.62) 0%, rgba(10,10,12,0.34) 70%, rgba(10,10,12,0) 100%)",
           opacity: framed ? 1 : 0,
+          backdropFilter: framed ? "blur(12px)" : "blur(0px)",
+          WebkitBackdropFilter: framed ? "blur(12px)" : "blur(0px)",
           transitionDuration: `${FRAME_FADE_MS}ms`,
         }}
       />
