@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 
-// Logo sizing knobs -- tweak these directly if the lockup looks off
-// against Figma. The two SVGs are each cropped tight to their own real
-// content (no padding), so the height you set here is exactly the
-// rendered height and the width follows automatically at the correct,
-// undistorted aspect ratio.
-const LOGO_ICON_HEIGHT = 44; // px, mark to the left
-const LOGO_WORDMARK_HEIGHT = 32; // px, "LINA / ZAKARIA" block, right of the mark
-const LOGO_GAP = 8; // px, space between the mark and the wordmark
+// Single combined SVG (icon + wordmark already positioned together,
+// from web/assets/logo/whole-logo.svg) rather than two separate images
+// placed via flex + gap -- the mark-to-wordmark spacing is baked into
+// the artwork itself, so it can't drift out of sync with the intended
+// design the way two independently-positioned elements could.
+const LOGO_HEIGHT = 36; // px -- tweak directly if it looks off against Figma
 
 const FRAME_FADE_MS = 400;
 
@@ -46,20 +44,12 @@ export default function Header({ overlay = false }: HeaderProps) {
         />
       )}
 
-      <div className="relative flex items-center" style={{ gap: LOGO_GAP }}>
+      <div className="relative flex items-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/logo-icon.svg"
-          alt=""
-          aria-hidden
-          style={{ height: LOGO_ICON_HEIGHT }}
-          className="w-auto"
-        />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/logo-wordmark.svg"
+          src="/images/logo-whole.svg"
           alt="Lina Zakaria"
-          style={{ height: LOGO_WORDMARK_HEIGHT }}
+          style={{ height: LOGO_HEIGHT }}
           className="w-auto"
         />
       </div>
