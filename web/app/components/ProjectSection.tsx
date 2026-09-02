@@ -52,15 +52,18 @@ const MEDIA_START_DELAY_MS = 1000;
 // instead of their own separate clamp, so they always track the font
 // size exactly instead of two independent curves drifting apart.
 //
-// The left/right inset is a flat, non-scaling 6px at every width, per
-// review feedback -- it should read as "close to the same" distance from
-// the edge on mobile as on desktop, not shrink toward the edge.
+// The left/right inset isn't its own value any more -- per feedback, it
+// needs to match the Header's own horizontal padding exactly (px-4 /
+// sm:px-8, i.e. 16px under 640px, 32px from 640px up), so the title/
+// "explore more" row lines up with the logo mark's own left edge rather
+// than being sized around the title text. Applied as the same Tailwind
+// classes below (not a computed value) so it's guaranteed to always
+// match Header.tsx, including if that ever changes.
 const REF_FRAME_WIDTH = 1851.51;
 const clampVw = (minPx: number, targetPx: number, maxPx: number) =>
   `clamp(${minPx}px, ${(targetPx / REF_FRAME_WIDTH) * 100}vw, ${maxPx}px)`;
 
 const GRADIENT_HEIGHT_VH = `${(452 / 1000) * 100}vh`; // 452/1000 of the frame's own height
-const TEXT_INSET_X = "6px"; // flat, not proportional -- stays close to the same on any screen
 const TEXT_INSET_BOTTOM = clampVw(24, 40, 40);
 const TITLE_WIDTH = clampVw(240, 414, 414);
 const TITLE_FONT_SIZE = clampVw(20, 33.256, 33.256);
@@ -291,10 +294,8 @@ export default function ProjectSection({
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <Wrapper
         {...(wrapperProps as any)}
-        className="absolute inset-x-0 bottom-0 flex items-center justify-between text-white"
+        className="absolute inset-x-0 bottom-0 flex items-center justify-between px-4 text-white sm:px-8"
         style={{
-          paddingLeft: TEXT_INSET_X,
-          paddingRight: TEXT_INSET_X,
           paddingBottom: TEXT_INSET_BOTTOM,
         }}
       >
@@ -344,8 +345,8 @@ export default function ProjectSection({
         </div>
         {/* Figma: 'Inter', 400, 20.568px / 25px line-height. Sits at the
             Wrapper's right edge via `justify-between` on the row above,
-            6px in from the edge (same TEXT_INSET_X as the title's left
-            inset) -- no arrow, just the label. */}
+            inset by the same px-4/sm:px-8 as the title's left edge (and
+            the Header's own padding) -- no arrow, just the label. */}
         <div
           className="hidden shrink-0 items-center font-normal text-white/90 transition-opacity duration-500 sm:flex"
           style={{
