@@ -42,13 +42,34 @@ const TEXT_FADE_MS = 500;
 // first.
 const MEDIA_START_DELAY_MS = 1000;
 
-// The Figma design overlays a soft dark gradient ("Vector") on top of each
-// hero photo, rising from the bottom edge, before the text sits on it. The
-// real gradient asset couldn't be pulled from Figma this pass (MCP tool-call
-// limit was hit mid fetch), so this reproduces the same visual — a
-// bottom-up multiply-blend darkening — with a CSS gradient instead of the
-// exported asset. Swap the `overlay` div for an <img> of the real asset
-// if/when it's fetched.
+// Exact Dev Mode CSS from Figma ("Project Component"), measured against
+// one 1851.51px-wide reference frame -- desktop matches those numbers
+// exactly. Font sizes and the title's box width scale down smoothly for
+// narrower screens (via `clampVw`) but stop at a floor that stays
+// readable, rather than shrinking in strict proportion all the way down
+// to an unreadable few pixels on a phone. Line-heights use a unitless
+// ratio (matching each element's own Figma font-size/line-height ratio)
+// instead of their own separate clamp, so they always track the font
+// size exactly instead of two independent curves drifting apart.
+//
+// The left/right inset is a flat, non-scaling 6px at every width, per
+// review feedback -- it should read as "close to the same" distance from
+// the edge on mobile as on desktop, not shrink toward the edge.
+const REF_FRAME_WIDTH = 1851.51;
+const clampVw = (minPx: number, targetPx: number, maxPx: number) =>
+  `clamp(${minPx}px, ${(targetPx / REF_FRAME_WIDTH) * 100}vw, ${maxPx}px)`;
+
+const GRADIENT_HEIGHT_VH = `${(452 / 1000) * 100}vh`; // 452/1000 of the frame's own height
+const TEXT_INSET_X = "6px"; // flat, not proportional -- stays close to the same on any screen
+const TEXT_INSET_BOTTOM = clampVw(24, 40, 40);
+const TITLE_WIDTH = clampVw(240, 414, 414);
+const TITLE_FONT_SIZE = clampVw(20, 33.256, 33.256);
+const TITLE_LINE_HEIGHT = 40 / 33.256; // unitless -- tracks TITLE_FONT_SIZE exactly
+const TITLE_MARGIN_Y = "-2px"; // flat, matches Figma exactly
+const SUBTITLE_FONT_SIZE = clampVw(16, 24, 24);
+const SUBTITLE_LINE_HEIGHT = 29 / 24;
+const EXPLORE_FONT_SIZE = clampVw(13, 20.568, 20.568);
+const EXPLORE_LINE_HEIGHT = 25 / 20.568;
 export default function ProjectSection({
   image,
   name,
@@ -230,12 +251,18 @@ export default function ProjectSection({
         )}
       </div>
 
+      {/* Figma "Gradiant": white-to-black, top-to-bottom, multiply blend --
+          452/1000 of the frame height, anchored to the bottom. On a
+          multiply blend, white (top) leaves the photo unchanged and black
+          (bottom) fully darkens it, which is the same "rises from the
+          bottom edge" look as before, just matched exactly to spec instead
+          of an approximated rgba gradient. */}
       <div
         aria-hidden
-        className="absolute inset-x-0 bottom-0 h-2/3 mix-blend-multiply"
+        className="absolute inset-x-0 bottom-0 mix-blend-multiply"
         style={{
-          background:
-            "linear-gradient(to top, rgba(10,10,12,0.85) 0%, rgba(10,10,12,0.55) 45%, transparent 100%)",
+          height: GRADIENT_HEIGHT_VH,
+          background: "linear-gradient(180deg, #FFFFFF 0%, #000000 100%)",
         }}
       />
 
@@ -264,7 +291,12 @@ export default function ProjectSection({
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <Wrapper
         {...(wrapperProps as any)}
-        className="absolute inset-x-0 bottom-10 flex items-end justify-between px-4 text-white sm:bottom-16 sm:px-8 md:bottom-20"
+        className="absolute inset-x-0 bottom-0 flex items-end justify-between text-white"
+        style={{
+          paddingLeft: TEXT_INSET_X,
+          paddingRight: TEXT_INSET_X,
+          paddingBottom: TEXT_INSET_BOTTOM,
+        }}
       >
         {/* Sits at its resting position at all times -- only opacity
             animates, fading in TEXT_REVEAL_DELAY_MS after the section
@@ -272,21 +304,34 @@ export default function ProjectSection({
             bold sweep. */}
         <div
           style={{
+            width: TITLE_WIDTH,
             opacity: textVisible ? 1 : 0,
             transitionProperty: "opacity",
             transitionDuration: `${TEXT_FADE_MS}ms`,
             transitionTimingFunction: "ease-out",
           }}
         >
-          {/* Figma: 'Inter', 33.256px / 40px line-height -- "THIS IS " is
-              regular (400), the project name is bold (700). */}
-          <p className="text-xl sm:text-2xl md:text-[33.256px] md:leading-[40px]">
+          {/* Figma: 'Inter', 33.256px / 40px line-height, -2px top+bottom
+              margin -- "THIS IS " is regular (400), the project name is
+              bold (700). */}
+          <p
+            style={{
+              fontSize: TITLE_FONT_SIZE,
+              lineHeight: TITLE_LINE_HEIGHT,
+              marginTop: TITLE_MARGIN_Y,
+              marginBottom: TITLE_MARGIN_Y,
+            }}
+          >
             THIS IS <span className="font-bold">{name}</span>
           </p>
           {/* Figma: 'Inter', 400, 24px / 29px line-height */}
           <p
-            className="mt-2 text-base font-normal leading-normal text-white/90 transition-opacity duration-500 md:text-[24px] md:leading-[29px]"
-            style={{ opacity: descriptionVisible ? 1 : 0 }}
+            className="font-normal text-white/90 transition-opacity duration-500"
+            style={{
+              fontSize: SUBTITLE_FONT_SIZE,
+              lineHeight: SUBTITLE_LINE_HEIGHT,
+              opacity: descriptionVisible ? 1 : 0,
+            }}
           >
             {subtitle}
           </p>
@@ -296,8 +341,12 @@ export default function ProjectSection({
             to draw the eye toward it as something clickable, rather than
             sitting fully static. */}
         <div
-          className="hidden shrink-0 items-center gap-2 text-sm font-normal text-white/90 transition-opacity duration-500 sm:flex md:text-[20.568px] md:leading-[25px]"
-          style={{ opacity: descriptionVisible ? 1 : 0 }}
+          className="hidden shrink-0 items-center gap-2 font-normal text-white/90 transition-opacity duration-500 sm:flex"
+          style={{
+            fontSize: EXPLORE_FONT_SIZE,
+            lineHeight: EXPLORE_LINE_HEIGHT,
+            opacity: descriptionVisible ? 1 : 0,
+          }}
         >
           <span>explore more</span>
           <span
