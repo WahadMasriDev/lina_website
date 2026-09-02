@@ -2,12 +2,17 @@
 
 import { useState } from "react";
 
-// Single combined SVG (icon + wordmark already positioned together,
-// from web/assets/logo/whole-logo.svg) rather than two separate images
-// placed via flex + gap -- the mark-to-wordmark spacing is baked into
-// the artwork itself, so it can't drift out of sync with the intended
-// design the way two independently-positioned elements could.
-const LOGO_HEIGHT = 36; // px -- tweak directly if it looks off against Figma
+// At rest, just the icon mark (logo-icon.svg). On hover, it expands into
+// the full "LINA ZAKARIA" lockup (logo-whole.svg, icon + wordmark already
+// positioned together as one piece from web/assets/logo/whole-logo.svg).
+// Both render at the same height -- only the width (and which image is
+// visible) changes on hover.
+const LOGO_HEIGHT = 56; // px -- tweak directly if it looks off against Figma
+const LOGO_ICON_ASPECT = 28 / 42; // logo-icon.svg's own width/height
+const LOGO_WHOLE_ASPECT = 140 / 56; // logo-whole.svg's own width/height
+const LOGO_ICON_WIDTH = LOGO_HEIGHT * LOGO_ICON_ASPECT;
+const LOGO_WHOLE_WIDTH = LOGO_HEIGHT * LOGO_WHOLE_ASPECT;
+const LOGO_HOVER_MS = 300;
 
 const FRAME_FADE_MS = 400;
 
@@ -23,6 +28,7 @@ type HeaderProps = {
 
 export default function Header({ overlay = false }: HeaderProps) {
   const [hovered, setHovered] = useState(false);
+  const [logoHovered, setLogoHovered] = useState(false);
   const framed = overlay && hovered;
 
   return (
@@ -44,13 +50,44 @@ export default function Header({ overlay = false }: HeaderProps) {
         />
       )}
 
-      <div className="relative flex items-center">
+      <div
+        className="relative flex items-center"
+        onMouseEnter={() => setLogoHovered(true)}
+        onMouseLeave={() => setLogoHovered(false)}
+        style={{
+          height: LOGO_HEIGHT,
+          width: logoHovered ? LOGO_WHOLE_WIDTH : LOGO_ICON_WIDTH,
+          transitionProperty: "width",
+          transitionDuration: `${LOGO_HOVER_MS}ms`,
+          transitionTimingFunction: "ease-out",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/logo-icon.svg"
+          alt="Lina Zakaria"
+          style={{
+            height: LOGO_HEIGHT,
+            opacity: logoHovered ? 0 : 1,
+            transitionProperty: "opacity",
+            transitionDuration: `${LOGO_HOVER_MS}ms`,
+            transitionTimingFunction: "ease-out",
+          }}
+          className="absolute left-0 top-0 w-auto"
+        />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/logo-whole.svg"
-          alt="Lina Zakaria"
-          style={{ height: LOGO_HEIGHT }}
-          className="w-auto"
+          alt=""
+          aria-hidden
+          style={{
+            height: LOGO_HEIGHT,
+            opacity: logoHovered ? 1 : 0,
+            transitionProperty: "opacity",
+            transitionDuration: `${LOGO_HOVER_MS}ms`,
+            transitionTimingFunction: "ease-out",
+          }}
+          className="absolute left-0 top-0 w-auto"
         />
       </div>
 
