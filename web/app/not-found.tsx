@@ -15,18 +15,22 @@ import Header from "./components/Header";
 // competing for attention, so the name can just sit there.
 //
 // A dimmed photo backdrop was tried here and reverted -- flat black is
-// what was actually wanted. The one real issue was a subtle radial
-// vignette that used to sit on <main> only: since it started right at
-// the top of <main>, exactly where the header ends, it read as a visible
-// seam -- the header's flat black meeting a slightly lighter patch right
-// below it. Removed entirely so the black is flat and continuous behind
-// the header all the way down, no seam.
+// what was actually wanted. A subtle radial vignette that used to sit on
+// <main> only was also removed -- it started right at the top of <main>,
+// exactly where the header ended, and read as a visible seam.
+//
+// The header uses `overlay` here (fixed, out of normal flow) rather than
+// sitting in a flex column above <main> -- with the header in-flow, the
+// content below it was only centered within the *remaining* space under
+// the header, so it sat visibly above true screen-center. Floating the
+// header instead lets <main> fill the full viewport height and center
+// the message against the whole page, header included.
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col bg-black">
-      <Header staticLogo />
+    <div className="relative min-h-screen bg-black">
+      <Header overlay staticLogo />
 
-      <main className="relative flex flex-1 flex-col items-center justify-center px-4 py-24 text-center sm:px-8">
+      <main className="flex min-h-screen flex-col items-center justify-center px-4 text-center sm:px-8">
         <div className="relative">
           <p className="text-[13px] font-light uppercase tracking-[0.3em] text-white/40">
             Erreur
