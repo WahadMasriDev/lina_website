@@ -74,8 +74,12 @@ const projects = [
 // same look at all times, on every project (see Header.tsx). The native
 // scrollbar is hidden in favour of ProjectNav, a small dot column on the
 // right that tracks the active section and jumps to any other on click.
-const SECTION_ANIMATION_MS = 1500;
-const WHEEL_COOLDOWN_MS = 350;
+// Sped up per review feedback ("transition can be faster") -- was
+// 1500/350. This is the glide between projects itself (one wheel tick =
+// one section), separate from the in-card photo montage crossfade
+// (MONTAGE_CROSSFADE_MS in ProjectSection.tsx), which was sped up too.
+const SECTION_ANIMATION_MS = 850;
+const WHEEL_COOLDOWN_MS = 150;
 
 function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
