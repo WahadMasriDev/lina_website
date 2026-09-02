@@ -124,11 +124,11 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
         matching section on the page -- dead links everywhere. WORK now
         goes to the landing page itself (that's where the work already
         lives); ABOUT and PERSONAL PLAYGROUND don't have real pages yet,
-        so they go to the placeholder route ("/web-artifacts-builder",
+        so they go to the placeholder route ("/bientot",
         see page.tsx) until they do.
 
         ABOUT/PERSONAL PLAYGROUND are plain <a> tags, not <Link> --
-        "/web-artifacts-builder" has no page.tsx, so Next's client-side
+        "/bientot" has no page.tsx, so Next's client-side
         router can't find route data for it and silently fails to
         navigate on a soft transition. A real <a> forces a full page
         load, which correctly hits the static host's 404 handling (our
@@ -136,10 +136,10 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
         <Link> since "/" is a real, always-present route.
       */}
       <nav className="relative hidden md:flex w-[360px] items-center justify-between text-[15px] leading-[18px] font-light text-white">
-        <a href="/web-artifacts-builder" className="hover:opacity-70">
+        <a href="/bientot" className="hover:opacity-70">
           ABOUT
         </a>
-        <a href="/web-artifacts-builder" className="hover:opacity-70">
+        <a href="/bientot" className="hover:opacity-70">
           PERSONAL PLAYGROUND
         </a>
         <Link href="/" className="hover:opacity-70">

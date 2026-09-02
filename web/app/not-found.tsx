@@ -2,7 +2,7 @@ import Link from "next/link";
 import Header from "./components/Header";
 
 // Renders automatically for any route with no page.tsx -- including
-// "/web-artifacts-builder", the deliberate placeholder every not-yet-built
+// "/bientot", the deliberate placeholder every not-yet-built
 // link on the site (nav items, comingSoon project cards) points at for
 // now. Styled to match the rest of the site rather than a bare Next.js
 // default: same Header, same dark canvas, and the same quiet, considered

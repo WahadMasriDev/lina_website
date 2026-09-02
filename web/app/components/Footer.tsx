@@ -15,7 +15,7 @@ import Link from "next/link";
 // now point back at the real sections on the landing page (real routes,
 // so they stay <Link> for the client-side transition); Playground and
 // About don't have pages yet, so they go to the placeholder route
-// ("/web-artifacts-builder", see page.tsx) as plain <a> tags instead --
+// ("/bientot", see page.tsx) as plain <a> tags instead --
 // that route has no page.tsx, so Next's client router can't find its
 // route data and a <Link> to it silently fails to navigate. A real <a>
 // forces a full page load, which correctly hits the static host's 404
@@ -112,13 +112,13 @@ export default function Footer() {
             Work
           </Link>
           <a
-            href="/web-artifacts-builder"
+            href="/bientot"
             className="text-[13px] uppercase leading-4 text-[#F5F5F7] hover:opacity-70"
           >
             Personal Playground
           </a>
           <a
-            href="/web-artifacts-builder"
+            href="/bientot"
             className="text-[13px] uppercase leading-4 text-[#F5F5F7] hover:opacity-70"
           >
             About

@@ -15,12 +15,12 @@ import ContactSection from "./components/ContactSection";
 // goes somewhere -- an elegant "not built yet" page -- rather than being
 // a dead, unclickable card.
 //
-// `/web-artifacts-builder` is a deliberately nonexistent route: it has no
+// `/bientot` is a deliberately nonexistent route: it has no
 // page.tsx, so Next.js renders app/not-found.tsx for it. That page is
 // this site's stand-in destination for every link that doesn't have a
 // real page yet -- swap these hrefs for the real project pages as they
 // get built.
-const PLACEHOLDER_HREF = "/web-artifacts-builder";
+const PLACEHOLDER_HREF = "/bientot";
 
 const projects = [
   {
