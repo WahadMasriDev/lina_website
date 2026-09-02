@@ -336,30 +336,19 @@ export default function ProjectSection({
             {subtitle}
           </p>
         </div>
-        {/* Figma: 'Inter', 400, 20.568px / 25px line-height -- once
-            visible, a small arrow quietly nudges back and forth on a loop
-            to draw the eye toward it as something clickable, rather than
-            sitting fully static. */}
+        {/* Figma: 'Inter', 400, 20.568px / 25px line-height. Sits at the
+            Wrapper's right edge via `justify-between` on the row above,
+            6px in from the edge (same TEXT_INSET_X as the title's left
+            inset) -- no arrow, just the label. */}
         <div
-          className="hidden shrink-0 items-center gap-2 font-normal text-white/90 transition-opacity duration-500 sm:flex"
+          className="hidden shrink-0 items-center font-normal text-white/90 transition-opacity duration-500 sm:flex"
           style={{
             fontSize: EXPLORE_FONT_SIZE,
             lineHeight: EXPLORE_LINE_HEIGHT,
             opacity: descriptionVisible ? 1 : 0,
           }}
         >
-          <span>explore more</span>
-          <span
-            aria-hidden
-            className="inline-block"
-            style={
-              descriptionVisible
-                ? { animation: "explore-nudge 2.2s ease-in-out infinite" }
-                : undefined
-            }
-          >
-            →
-          </span>
+          explore more
         </div>
       </Wrapper>
     </section>
