@@ -8,8 +8,13 @@ import { useState } from "react";
 // together as one piece from web/assets/logo/whole-logo.svg), same
 // height, no transition -- it just appears/disappears with the hover.
 const LOGO_HEIGHT = 56; // px -- tweak directly if it looks off against Figma
-const LOGO_ICON_ASPECT = 28 / 42; // logo-icon.svg's own width/height
-const LOGO_WHOLE_ASPECT = 140 / 56; // logo-whole.svg's own width/height
+// Both files' own viewBoxes are the same 43px-tall crop now (updated by
+// Nezar so the icon mark reads at the same visual size standalone and
+// inside the full lockup), so rendering both at the same CSS height
+// keeps the icon glyph itself visually consistent between states, not
+// just the bounding box.
+const LOGO_ICON_ASPECT = 29 / 43; // logo-icon.svg's own width/height
+const LOGO_WHOLE_ASPECT = 140 / 43; // logo-whole.svg's own width/height
 const LOGO_ICON_WIDTH = LOGO_HEIGHT * LOGO_ICON_ASPECT;
 const LOGO_WHOLE_WIDTH = LOGO_HEIGHT * LOGO_WHOLE_ASPECT;
 
