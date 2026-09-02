@@ -37,12 +37,17 @@ export default function ProjectNav({ names, activeIndex, onSelect }: ProjectNavP
             aria-current={active}
             className="group flex items-center gap-3"
           >
+            {/* Was always visible at opacity-100 for the active project,
+                even at rest -- every other name correctly waits for
+                `expanded` (hover), so the active one should too, for the
+                same "text only appears on hover" reasoning applied to the
+                header logo. */}
             <span
               className={`whitespace-nowrap text-[10px] font-light uppercase tracking-[0.2em] text-white transition-all duration-500 ease-out ${
                 expanded
-                  ? "translate-x-0 opacity-70 group-hover:opacity-100"
+                  ? `translate-x-0 group-hover:opacity-100 ${active ? "opacity-100" : "opacity-70"}`
                   : "pointer-events-none translate-x-2 opacity-0"
-              } ${active ? "opacity-100" : ""}`}
+              }`}
               style={{ transitionTimingFunction: "cubic-bezier(.16,1,.3,1)" }}
             >
               {name}
