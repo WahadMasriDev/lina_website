@@ -64,7 +64,7 @@ const clampVw = (minPx: number, targetPx: number, maxPx: number) =>
   `clamp(${minPx}px, ${(targetPx / REF_FRAME_WIDTH) * 100}vw, ${maxPx}px)`;
 
 const GRADIENT_HEIGHT_VH = `${(452 / 1000) * 100}vh`; // 452/1000 of the frame's own height
-const TEXT_INSET_BOTTOM = clampVw(24, 40, 40);
+const TEXT_INSET_BOTTOM = "40px"; // flat, exact Figma value at every screen size -- not scaled
 const TITLE_WIDTH = clampVw(240, 414, 414);
 const TITLE_FONT_SIZE = clampVw(20, 33.256, 33.256);
 const TITLE_LINE_HEIGHT = 40 / 33.256; // unitless -- tracks TITLE_FONT_SIZE exactly
