@@ -10,15 +10,22 @@ import { useState } from "react";
 // black backing) -- the two images sit stacked on top of each other via
 // absolute positioning, so nothing else (size, position) needs to move
 // or animate, only which one is visible.
+//
+// The wrapper box is sized for the WHOLE logo at all times, even while
+// only the icon is showing -- it used to snap down to the icon's own
+// (much narrower) width the instant you stopped hovering, which caused a
+// real bug: that resize happened instantly while the whole-logo image was
+// still mid-fade at close to full opacity, so for a frame it rendered
+// squeezed into a box smaller than itself. Keeping the wrapper's size
+// fixed means hovering never triggers a resize at all, only the opacity
+// swap -- the icon just sits left-aligned inside the larger box.
 const LOGO_HEIGHT = 56; // px -- tweak directly if it looks off against Figma
 // Both files' own viewBoxes are the same 43px-tall crop now (updated by
 // Nezar so the icon mark reads at the same visual size standalone and
 // inside the full lockup), so rendering both at the same CSS height
 // keeps the icon glyph itself visually consistent between states, not
 // just the bounding box.
-const LOGO_ICON_ASPECT = 29 / 43; // logo-icon.svg's own width/height
 const LOGO_WHOLE_ASPECT = 140 / 43; // logo-whole.svg's own width/height
-const LOGO_ICON_WIDTH = LOGO_HEIGHT * LOGO_ICON_ASPECT;
 const LOGO_WHOLE_WIDTH = LOGO_HEIGHT * LOGO_WHOLE_ASPECT;
 
 const FRAME_FADE_MS = 400;
@@ -61,10 +68,7 @@ export default function Header({ overlay = false }: HeaderProps) {
 
       <div
         className="relative flex items-center"
-        style={{
-          height: LOGO_HEIGHT,
-          width: hovered ? LOGO_WHOLE_WIDTH : LOGO_ICON_WIDTH,
-        }}
+        style={{ height: LOGO_HEIGHT, width: LOGO_WHOLE_WIDTH }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
