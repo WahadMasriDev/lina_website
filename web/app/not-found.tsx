@@ -1,19 +1,22 @@
 import Link from "next/link";
 import Header from "./components/Header";
-import Footer from "./components/Footer";
 
 // Renders automatically for any route with no page.tsx -- including
 // "/web-artifacts-builder", the deliberate placeholder every not-yet-built
 // link on the site (nav items, comingSoon project cards) points at for
 // now. Styled to match the rest of the site rather than a bare Next.js
-// default: same Header/Footer, same dark canvas, and the same quiet,
-// considered typography ContactSection and the project cards' "Coming
-// soon" treatment already use, so landing here reads as "this part isn't
-// built yet" rather than "you broke something."
+// default: same Header, same dark canvas, and the same quiet, considered
+// typography ContactSection and the project cards' "Coming soon"
+// treatment already use, so landing here reads as "this part isn't built
+// yet" rather than "you broke something." No Footer -- kept deliberately
+// spare, just the header and the message. The header shows the full
+// "LINA ZAKARIA" wordmark statically rather than the icon-only/hover
+// treatment used elsewhere -- there's no hero content underneath here
+// competing for attention, so the name can just sit there.
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col bg-black">
-      <Header />
+      <Header staticLogo />
 
       <main className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-4 py-24 text-center sm:px-8">
         {/* Same quiet top vignette ContactSection and the project cards
@@ -30,7 +33,7 @@ export default function NotFound() {
 
         <div className="relative">
           <p className="text-[13px] font-light uppercase tracking-[0.3em] text-white/40">
-            Erreur 404
+            Erreur
           </p>
 
           <h1 className="mt-6 text-[96px] font-light leading-none tracking-[-0.02em] text-white sm:text-[140px]">
@@ -55,8 +58,6 @@ export default function NotFound() {
           </Link>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

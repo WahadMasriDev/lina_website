@@ -39,9 +39,15 @@ type HeaderProps = {
    * backing itself should be solid black, not a frosted/blurred glass
    * effect -- the hover-only behaviour stays. */
   overlay?: boolean;
+  /** Skips the icon/hover-to-full-lockup behaviour entirely and just
+   * always shows the full "LINA ZAKARIA" wordmark. Used on standalone
+   * pages like not-found.tsx, where there's no hero content underneath
+   * competing for attention, so the compact icon-at-rest treatment isn't
+   * needed -- the name can just sit there. */
+  staticLogo?: boolean;
 };
 
-export default function Header({ overlay = false }: HeaderProps) {
+export default function Header({ overlay = false, staticLogo = false }: HeaderProps) {
   // Tracks hover over the whole header, on every page (not gated on
   // `overlay`) -- the logo swap needs it everywhere, even though the
   // black backing below is still landing-page-only.
@@ -71,29 +77,41 @@ export default function Header({ overlay = false }: HeaderProps) {
         className="relative flex items-center"
         style={{ height: LOGO_HEIGHT, width: LOGO_WHOLE_WIDTH }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/logo-icon.svg"
-          alt="Lina Zakaria"
-          style={{
-            height: LOGO_HEIGHT,
-            opacity: hovered ? 0 : 1,
-            transitionDuration: `${FRAME_FADE_MS}ms`,
-          }}
-          className="absolute left-0 top-0 w-auto transition-opacity ease-out"
-        />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/logo-whole.svg"
-          alt=""
-          aria-hidden
-          style={{
-            height: LOGO_HEIGHT,
-            opacity: hovered ? 1 : 0,
-            transitionDuration: `${FRAME_FADE_MS}ms`,
-          }}
-          className="absolute left-0 top-0 w-auto transition-opacity ease-out"
-        />
+        {staticLogo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src="/images/logo-whole.svg"
+            alt="Lina Zakaria"
+            style={{ height: LOGO_HEIGHT }}
+            className="w-auto"
+          />
+        ) : (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/logo-icon.svg"
+              alt="Lina Zakaria"
+              style={{
+                height: LOGO_HEIGHT,
+                opacity: hovered ? 0 : 1,
+                transitionDuration: `${FRAME_FADE_MS}ms`,
+              }}
+              className="absolute left-0 top-0 w-auto transition-opacity ease-out"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/logo-whole.svg"
+              alt=""
+              aria-hidden
+              style={{
+                height: LOGO_HEIGHT,
+                opacity: hovered ? 1 : 0,
+                transitionDuration: `${FRAME_FADE_MS}ms`,
+              }}
+              className="absolute left-0 top-0 w-auto transition-opacity ease-out"
+            />
+          </>
+        )}
       </div>
 
       {/*
