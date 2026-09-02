@@ -39,7 +39,7 @@ export default function ChevalBlancPage() {
               <p className="text-xl font-normal sm:text-2xl md:text-[33.256px] md:leading-[40px]">
                 THIS IS <span className="font-bold">CHEVAL BLANC</span>
               </p>
-              <p className="mt-2 max-w-2xl text-base font-normal leading-normal text-white/90 md:text-[24px] md:leading-[29px]">
+              <p className="mt-2 whitespace-nowrap text-base font-normal leading-normal text-white/90 md:text-[24px] md:leading-[29px]">
                 Hotel de luxe à la samaritaine, LVMH
               </p>
             </div>
