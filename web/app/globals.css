@@ -49,17 +49,3 @@ body {
     opacity: 0.6;
   }
 }
-
-/* A small nudge on the "explore more" arrow once a card has settled --
-   just enough motion to pull the eye toward it without being loud. */
-@keyframes explore-nudge {
-  0%,
-  100% {
-    transform: translateX(0);
-    opacity: 0.55;
-  }
-  50% {
-    transform: translateX(6px);
-    opacity: 1;
-  }
-}

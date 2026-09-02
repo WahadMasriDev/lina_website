@@ -2,26 +2,48 @@
 
 import { useState } from "react";
 
-// Logo sizing knobs -- tweak these directly if the lockup looks off
-// against Figma. The two SVGs are each cropped tight to their own real
-// content (no padding), so the height you set here is exactly the
-// rendered height and the width follows automatically at the correct,
-// undistorted aspect ratio.
-const LOGO_ICON_HEIGHT = 44; // px, mark to the left
-const LOGO_WORDMARK_HEIGHT = 32; // px, "LINA / ZAKARIA" block, right of the mark
-const LOGO_GAP = 8; // px, space between the mark and the wordmark
+// At rest, just the icon mark (logo-icon.svg). Hovering anywhere over the
+// header -- not just the logo itself -- swaps it to the full "LINA
+// ZAKARIA" lockup (logo-whole.svg, icon + wordmark already positioned
+// together as one piece from web/assets/logo/whole-logo.svg), same
+// height. Just an opacity fade (same FRAME_FADE_MS as the header's own
+// black backing) -- the two images sit stacked on top of each other via
+// absolute positioning, so nothing else (size, position) needs to move
+// or animate, only which one is visible.
+//
+// The wrapper box is sized for the WHOLE logo at all times, even while
+// only the icon is showing -- it used to snap down to the icon's own
+// (much narrower) width the instant you stopped hovering, which caused a
+// real bug: that resize happened instantly while the whole-logo image was
+// still mid-fade at close to full opacity, so for a frame it rendered
+// squeezed into a box smaller than itself. Keeping the wrapper's size
+// fixed means hovering never triggers a resize at all, only the opacity
+// swap -- the icon just sits left-aligned inside the larger box.
+const LOGO_HEIGHT = 56; // px -- tweak directly if it looks off against Figma
+// Both files' own viewBoxes are the same 43px-tall crop now (updated by
+// Nezar so the icon mark reads at the same visual size standalone and
+// inside the full lockup), so rendering both at the same CSS height
+// keeps the icon glyph itself visually consistent between states, not
+// just the bounding box.
+const LOGO_WHOLE_ASPECT = 140 / 43; // logo-whole.svg's own width/height
+const LOGO_WHOLE_WIDTH = LOGO_HEIGHT * LOGO_WHOLE_ASPECT;
 
-const FRAME_FADE_MS = 700;
+const FRAME_FADE_MS = 400;
 
 type HeaderProps = {
   /** Landing page only: always present, full-bleed, flush to the top on
-   * every project -- but transparent at rest. The frosted dark backing
-   * (gradient + blur) only appears while the mouse is directly over the
-   * header, and fades back out the moment it leaves. */
+   * every project -- transparent at rest, and a solid black backing
+   * (no blur) fades in while the mouse is directly over the header,
+   * fading back out the moment it leaves. Per review feedback: the
+   * backing itself should be solid black, not a frosted/blurred glass
+   * effect -- the hover-only behaviour stays. */
   overlay?: boolean;
 };
 
 export default function Header({ overlay = false }: HeaderProps) {
+  // Tracks hover over the whole header, on every page (not gated on
+  // `overlay`) -- the logo swap needs it everywhere, even though the
+  // black backing below is still landing-page-only.
   const [hovered, setHovered] = useState(false);
   const framed = overlay && hovered;
 
@@ -30,48 +52,46 @@ export default function Header({ overlay = false }: HeaderProps) {
       className={`flex h-[96px] w-full items-center justify-between px-4 sm:px-8 ${
         overlay ? "fixed inset-x-0 top-0 z-50" : "relative"
       }`}
-      onMouseEnter={() => overlay && setHovered(true)}
-      onMouseLeave={() => overlay && setHovered(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      {/* The gradient layer is always mounted -- only its opacity animates
-          (CSS can't interpolate `background` between "transparent" and a
-          gradient at all, which is why toggling that value directly used
-          to look instant). The blur is driven the same way, as an actual
-          blur-radius value going from 0px to 12px, NOT a class being
-          toggled on/off: a `backdrop-blur-md` class applied unconditionally
-          (even "off" at opacity 0) turned out to render as a solid black
-          band the whole time -- backdrop-filter blur at the very top edge
-          of a fixed, viewport-pinned element samples past the edge of the
-          page, and blurring that in most browsers reads as solid black.
-          blur(0px) has nothing to sample, so it can't produce that. */}
-      <div
-        aria-hidden
-        className="absolute inset-0 transition-[opacity,backdrop-filter] ease-out"
-        style={{
-          background:
-            "linear-gradient(to bottom, rgba(10,10,12,0.62) 0%, rgba(10,10,12,0.34) 70%, rgba(10,10,12,0) 100%)",
-          opacity: framed ? 1 : 0,
-          backdropFilter: framed ? "blur(12px)" : "blur(0px)",
-          WebkitBackdropFilter: framed ? "blur(12px)" : "blur(0px)",
-          transitionDuration: `${FRAME_FADE_MS}ms`,
-        }}
-      />
+      {overlay && (
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-black transition-opacity ease-out"
+          style={{
+            opacity: framed ? 1 : 0,
+            transitionDuration: `${FRAME_FADE_MS}ms`,
+          }}
+        />
+      )}
 
-      <div className="relative flex items-center" style={{ gap: LOGO_GAP }}>
+      <div
+        className="relative flex items-center"
+        style={{ height: LOGO_HEIGHT, width: LOGO_WHOLE_WIDTH }}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/logo-icon.svg"
-          alt=""
-          aria-hidden
-          style={{ height: LOGO_ICON_HEIGHT }}
-          className="w-auto"
+          alt="Lina Zakaria"
+          style={{
+            height: LOGO_HEIGHT,
+            opacity: hovered ? 0 : 1,
+            transitionDuration: `${FRAME_FADE_MS}ms`,
+          }}
+          className="absolute left-0 top-0 w-auto transition-opacity ease-out"
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/logo-wordmark.svg"
-          alt="Lina Zakaria"
-          style={{ height: LOGO_WORDMARK_HEIGHT }}
-          className="w-auto"
+          src="/images/logo-whole.svg"
+          alt=""
+          aria-hidden
+          style={{
+            height: LOGO_HEIGHT,
+            opacity: hovered ? 1 : 0,
+            transitionDuration: `${FRAME_FADE_MS}ms`,
+          }}
+          className="absolute left-0 top-0 w-auto transition-opacity ease-out"
         />
       </div>
 
