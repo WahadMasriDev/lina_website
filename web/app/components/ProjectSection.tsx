@@ -291,7 +291,7 @@ export default function ProjectSection({
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <Wrapper
         {...(wrapperProps as any)}
-        className="absolute inset-x-0 bottom-0 flex items-end justify-between text-white"
+        className="absolute inset-x-0 bottom-0 flex items-center justify-between text-white"
         style={{
           paddingLeft: TEXT_INSET_X,
           paddingRight: TEXT_INSET_X,
@@ -304,7 +304,6 @@ export default function ProjectSection({
             bold sweep. */}
         <div
           style={{
-            width: TITLE_WIDTH,
             opacity: textVisible ? 1 : 0,
             transitionProperty: "opacity",
             transitionDuration: `${TEXT_FADE_MS}ms`,
@@ -313,9 +312,12 @@ export default function ProjectSection({
         >
           {/* Figma: 'Inter', 33.256px / 40px line-height, -2px top+bottom
               margin -- "THIS IS " is regular (400), the project name is
-              bold (700). */}
+              bold (700). Width-constrained (only this line, not the
+              subtitle) so a long project name wraps onto a second line
+              here instead of running off-screen. */}
           <p
             style={{
+              width: TITLE_WIDTH,
               fontSize: TITLE_FONT_SIZE,
               lineHeight: TITLE_LINE_HEIGHT,
               marginTop: TITLE_MARGIN_Y,
@@ -324,9 +326,13 @@ export default function ProjectSection({
           >
             THIS IS <span className="font-bold">{name}</span>
           </p>
-          {/* Figma: 'Inter', 400, 24px / 29px line-height */}
+          {/* Figma: 'Inter', 400, 24px / 29px line-height. Deliberately NOT
+              width-constrained to TITLE_WIDTH like the title above it --
+              that box is sized for the title text, and several subtitles
+              (e.g. "Hotel de luxe à la samaritaine, LVMH") are longer than
+              it, which was wrapping them awkwardly. Single line, always. */}
           <p
-            className="font-normal text-white/90 transition-opacity duration-500"
+            className="whitespace-nowrap font-normal text-white/90 transition-opacity duration-500"
             style={{
               fontSize: SUBTITLE_FONT_SIZE,
               lineHeight: SUBTITLE_LINE_HEIGHT,
