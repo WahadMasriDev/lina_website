@@ -42,6 +42,12 @@ const TEXT_FADE_MS = 500;
 // first.
 const MEDIA_START_DELAY_MS = 1000;
 
+// Once the video plays through to the end, it fades back to the static
+// thumbnail, holds there for a beat, then fades back in and replays from
+// the start -- on a loop, for as long as the section stays active. This is
+// how long it holds on the thumbnail between plays.
+const VIDEO_REPLAY_HOLD_MS = 1000;
+
 // Exact Dev Mode CSS from Figma ("Project Component"), measured against
 // one 1851.51px-wide reference frame -- desktop matches those numbers
 // exactly. Font sizes and the title's box width scale down smoothly for
@@ -93,7 +99,11 @@ export default function ProjectSection({
   // present that blacked out the hero photo underneath it permanently. Only
   // creating the element once we actually need it avoids that entirely.
   const [videoMounted, setVideoMounted] = useState(false);
+  // "video" = playing/showing the video layer; "thumbnail" = the video has
+  // just finished and we're holding on the static image before replaying.
+  const [videoPhase, setVideoPhase] = useState<"video" | "thumbnail">("video");
   const videoRef = useRef<HTMLVideoElement>(null);
+  const replayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
 
   // Whether the section is currently the one on screen. Text fades in a
@@ -187,9 +197,20 @@ export default function ProjectSection({
     if (!el) return;
 
     if (active) {
+      setVideoPhase("video");
       el.play().catch(() => {});
       return;
     }
+
+    // Leaving the section: cancel any pending replay cycle so it doesn't
+    // fire while we're away, and reset the phase so the next visit always
+    // starts fresh on the video layer rather than mid-hold on the
+    // thumbnail.
+    if (replayTimeoutRef.current) {
+      clearTimeout(replayTimeoutRef.current);
+      replayTimeoutRef.current = null;
+    }
+    setVideoPhase("video");
 
     el.pause();
     const id = setTimeout(() => {
@@ -198,7 +219,32 @@ export default function ProjectSection({
     return () => clearTimeout(id);
   }, [videoMounted, active]);
 
+  // Runs when the video plays through to the end (native `loop` is off so
+  // this actually fires): fade back to the static thumbnail, hold for
+  // VIDEO_REPLAY_HOLD_MS, then rewind and fade back in to replay -- for as
+  // long as the section stays active.
+  const handleVideoEnded = () => {
+    setVideoPhase("thumbnail");
+    if (replayTimeoutRef.current) clearTimeout(replayTimeoutRef.current);
+    replayTimeoutRef.current = setTimeout(() => {
+      const el = videoRef.current;
+      if (el) {
+        el.currentTime = 0;
+        el.play().catch(() => {});
+      }
+      setVideoPhase("video");
+    }, VIDEO_REPLAY_HOLD_MS);
+  };
+
+  // Belt-and-suspenders cleanup on unmount.
+  useEffect(() => {
+    return () => {
+      if (replayTimeoutRef.current) clearTimeout(replayTimeoutRef.current);
+    };
+  }, []);
+
   const showingMontage = active && montage;
+  const showingVideo = active && video && videoPhase === "video";
 
   const Wrapper = href ? Link : "div";
   const wrapperProps = href ? { href } : {};
@@ -216,7 +262,7 @@ export default function ProjectSection({
           loading={priority ? "eager" : "lazy"}
           className="absolute inset-0 h-full w-full object-cover transition-opacity ease-out"
           style={{
-            opacity: (active && video) || showingMontage ? 0 : 1,
+            opacity: showingVideo || showingMontage ? 0 : 1,
             transitionDuration: `${MEDIA_FADE_MS}ms`,
           }}
         />
@@ -242,12 +288,12 @@ export default function ProjectSection({
             ref={videoRef}
             src={video}
             muted
-            loop
             playsInline
             preload="none"
+            onEnded={handleVideoEnded}
             className="absolute inset-0 h-full w-full object-cover transition-opacity ease-out"
             style={{
-              opacity: active ? 1 : 0,
+              opacity: showingVideo ? 1 : 0,
               transitionDuration: `${MEDIA_FADE_MS}ms`,
             }}
           />

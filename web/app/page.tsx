@@ -6,13 +6,12 @@ import ProjectSection from "./components/ProjectSection";
 import ProjectNav from "./components/ProjectNav";
 import ContactSection from "./components/ContactSection";
 
-// Projects with more than one usable photo in their assets folder get a
-// hover montage (crossfading through the extra shots, never re-showing the
-// thumbnail itself) as a stand-in for a real video. McIntosh and HB Antwerp
-// only ever had the one landing photo -- marked comingSoon until real
-// assets show up. Infiniment Coty isn't happening, so it's not listed here.
-// `href` only exists on Cheval Blanc for now -- that's the only project
-// with a real detail page built; the others don't link anywhere yet.
+// Cheval Blanc is the only project with a finished video, so it's the only
+// one that plays anything -- every other project is marked comingSoon for
+// now, showing the "Coming soon" treatment instead of the old photo
+// carousel, until real AI-generated animations replace it project by
+// project. `href` only exists on Cheval Blanc for now -- that's the only
+// project with a real detail page built; the others don't link anywhere yet.
 const projects = [
   {
     image: "/images/cheval-blanc.png",
@@ -23,15 +22,15 @@ const projects = [
   },
   {
     image: "/images/solcotton.png",
-    images: ["/images/solcotton-2.jpg", "/images/solcotton-3.jpg"],
     name: "SOLCOTTON",
     subtitle: "Marque de cotton de luxe",
+    comingSoon: true,
   },
   {
     image: "/images/bose-bmw.png",
-    images: ["/images/bose-bmw-2.jpg", "/images/bose-bmw-3.jpg"],
     name: "BOSE X BMW",
     subtitle: "Interior design in Bejing",
+    comingSoon: true,
   },
   {
     image: "/images/mcintosh-virgil-abloh.png",
@@ -41,12 +40,9 @@ const projects = [
   },
   {
     image: "/images/psg-maison-shanghai.png",
-    images: [
-      "/images/psg-maison-shanghai-2.jpg",
-      "/images/psg-maison-shanghai-3.jpg",
-    ],
     name: "PSG X LA MAISON SHANGHAI",
     subtitle: "Interior design project",
+    comingSoon: true,
   },
   {
     image: "/images/hb-antwerp.png",
