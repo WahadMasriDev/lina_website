@@ -10,8 +10,18 @@ import ContactSection from "./components/ContactSection";
 // one that plays anything -- every other project is marked comingSoon for
 // now, showing the "Coming soon" treatment instead of the old photo
 // carousel, until real AI-generated animations replace it project by
-// project. `href` only exists on Cheval Blanc for now -- that's the only
-// project with a real detail page built; the others don't link anywhere yet.
+// project. Cheval Blanc links to its real detail page; every comingSoon
+// card links to the placeholder route below, so "explore more" always
+// goes somewhere -- an elegant "not built yet" page -- rather than being
+// a dead, unclickable card.
+//
+// `/web-artifacts-builder` is a deliberately nonexistent route: it has no
+// page.tsx, so Next.js renders app/not-found.tsx for it. That page is
+// this site's stand-in destination for every link that doesn't have a
+// real page yet -- swap these hrefs for the real project pages as they
+// get built.
+const PLACEHOLDER_HREF = "/web-artifacts-builder";
+
 const projects = [
   {
     image: "/images/cheval-blanc.png",
@@ -25,30 +35,35 @@ const projects = [
     name: "SOLCOTTON",
     subtitle: "Marque de cotton de luxe",
     comingSoon: true,
+    href: PLACEHOLDER_HREF,
   },
   {
     image: "/images/bose-bmw.png",
     name: "BOSE X BMW",
     subtitle: "Interior design in Bejing",
     comingSoon: true,
+    href: PLACEHOLDER_HREF,
   },
   {
     image: "/images/mcintosh-virgil-abloh.png",
     name: "MCINTOSH X VIRGIL ABLOH",
     subtitle: "Exposition au Grand Palais de Paris",
     comingSoon: true,
+    href: PLACEHOLDER_HREF,
   },
   {
     image: "/images/psg-maison-shanghai.png",
     name: "PSG X LA MAISON SHANGHAI",
     subtitle: "Interior design project",
     comingSoon: true,
+    href: PLACEHOLDER_HREF,
   },
   {
     image: "/images/hb-antwerp.png",
     name: "HB ANTWERP",
     subtitle: "Luxury diamond company",
     comingSoon: true,
+    href: PLACEHOLDER_HREF,
   },
 ] as const;
 

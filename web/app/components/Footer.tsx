@@ -1,9 +1,25 @@
+import Link from "next/link";
+
 // Matches the "footer 1" Figma spec (Dev Mode CSS export): column auto-layout,
 // 40px vertical padding, 23px gap between the three rows, a contact block +
 // social block split space-between, a hairline divider, then a bottom row
 // with the copyright and nav links. Fixed pixel widths from the spec (1858px
 // frame, 737px contact block, etc.) are relaxed to responsive flex/gap so it
 // holds up at any viewport width instead of only at the Figma canvas size.
+//
+// The bottom nav's hrefs used to be bare "#work"/"#playground"/"#about"/
+// "#contact" anchors -- this footer only actually renders on project
+// detail pages (page.tsx doesn't use it, ContactSection has its own
+// copyright row instead), so none of those ids exist on the page they're
+// clicked from and every one of them was a dead link. Work and Contact
+// now point back at the real sections on the landing page (real routes,
+// so they stay <Link> for the client-side transition); Playground and
+// About don't have pages yet, so they go to the placeholder route
+// ("/web-artifacts-builder", see page.tsx) as plain <a> tags instead --
+// that route has no page.tsx, so Next's client router can't find its
+// route data and a <Link> to it silently fails to navigate. A real <a>
+// forces a full page load, which correctly hits the static host's 404
+// handling (our styled not-found.tsx).
 export default function Footer() {
   return (
     <footer className="flex w-full flex-col items-stretch gap-6 px-4 py-10 sm:gap-[23px] sm:px-8">
@@ -89,30 +105,30 @@ export default function Footer() {
           © Lina Zakaria — Tous droits réservés
         </p>
         <nav className="flex flex-wrap items-center gap-x-8 gap-y-2">
-          <a
-            href="#work"
+          <Link
+            href="/"
             className="text-[13px] uppercase leading-4 text-[#F5F5F7] hover:opacity-70"
           >
             Work
-          </a>
+          </Link>
           <a
-            href="#playground"
+            href="/web-artifacts-builder"
             className="text-[13px] uppercase leading-4 text-[#F5F5F7] hover:opacity-70"
           >
             Personal Playground
           </a>
           <a
-            href="#about"
+            href="/web-artifacts-builder"
             className="text-[13px] uppercase leading-4 text-[#F5F5F7] hover:opacity-70"
           >
             About
           </a>
-          <a
-            href="#contact"
+          <Link
+            href="/#contact"
             className="text-[13px] uppercase leading-4 text-[#F5F5F7] hover:opacity-70"
           >
             Contact
-          </a>
+          </Link>
         </nav>
       </div>
     </footer>
