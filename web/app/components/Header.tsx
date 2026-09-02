@@ -6,7 +6,8 @@ import { useState } from "react";
 // header -- not just the logo itself -- swaps it to the full "LINA
 // ZAKARIA" lockup (logo-whole.svg, icon + wordmark already positioned
 // together as one piece from web/assets/logo/whole-logo.svg), same
-// height, no transition -- it just appears/disappears with the hover.
+// height. Crossfades with the same soft fade used for the header's own
+// black backing (FRAME_FADE_MS), rather than snapping instantly.
 const LOGO_HEIGHT = 56; // px -- tweak directly if it looks off against Figma
 // Both files' own viewBoxes are the same 43px-tall crop now (updated by
 // Nezar so the icon mark reads at the same visual size standalone and
@@ -57,28 +58,35 @@ export default function Header({ overlay = false }: HeaderProps) {
       )}
 
       <div
-        className="relative flex items-center"
+        className="relative flex items-center transition-[width] ease-out"
         style={{
           height: LOGO_HEIGHT,
           width: hovered ? LOGO_WHOLE_WIDTH : LOGO_ICON_WIDTH,
+          transitionDuration: `${FRAME_FADE_MS}ms`,
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/logo-icon.svg"
           alt="Lina Zakaria"
-          hidden={hovered}
-          style={{ height: LOGO_HEIGHT }}
-          className="absolute left-0 top-0 w-auto"
+          style={{
+            height: LOGO_HEIGHT,
+            opacity: hovered ? 0 : 1,
+            transitionDuration: `${FRAME_FADE_MS}ms`,
+          }}
+          className="absolute left-0 top-0 w-auto transition-opacity ease-out"
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/logo-whole.svg"
           alt=""
           aria-hidden
-          hidden={!hovered}
-          style={{ height: LOGO_HEIGHT }}
-          className="absolute left-0 top-0 w-auto"
+          style={{
+            height: LOGO_HEIGHT,
+            opacity: hovered ? 1 : 0,
+            transitionDuration: `${FRAME_FADE_MS}ms`,
+          }}
+          className="absolute left-0 top-0 w-auto transition-opacity ease-out"
         />
       </div>
 

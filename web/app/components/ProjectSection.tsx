@@ -71,7 +71,6 @@ const clampVw = (minPx: number, targetPx: number, maxPx: number) =>
 
 const GRADIENT_HEIGHT_VH = `${(452 / 1000) * 100}vh`; // 452/1000 of the frame's own height
 const TEXT_INSET_BOTTOM = "40px"; // flat, exact Figma value at every screen size -- not scaled
-const TITLE_WIDTH = clampVw(240, 414, 414);
 const TITLE_FONT_SIZE = clampVw(20, 33.256, 33.256);
 const TITLE_LINE_HEIGHT = 40 / 33.256; // unitless -- tracks TITLE_FONT_SIZE exactly
 const TITLE_MARGIN_Y = "-2px"; // flat, matches Figma exactly
@@ -220,20 +219,27 @@ export default function ProjectSection({
   }, [videoMounted, active]);
 
   // Runs when the video plays through to the end (native `loop` is off so
-  // this actually fires): fade back to the static thumbnail, hold for
-  // VIDEO_REPLAY_HOLD_MS, then rewind and fade back in to replay -- for as
-  // long as the section stays active.
+  // this actually fires): fade back to the static thumbnail, hold there at
+  // full opacity for VIDEO_REPLAY_HOLD_MS, then rewind and fade back in to
+  // replay -- for as long as the section stays active.
+  //
+  // The hold has to wait for the fade-to-thumbnail to actually finish
+  // (MEDIA_FADE_MS) before it starts -- starting it immediately meant the
+  // "hold" was really overlapping the fade itself, so the thumbnail never
+  // sat still at full opacity before fading back out again.
   const handleVideoEnded = () => {
     setVideoPhase("thumbnail");
     if (replayTimeoutRef.current) clearTimeout(replayTimeoutRef.current);
     replayTimeoutRef.current = setTimeout(() => {
-      const el = videoRef.current;
-      if (el) {
-        el.currentTime = 0;
-        el.play().catch(() => {});
-      }
-      setVideoPhase("video");
-    }, VIDEO_REPLAY_HOLD_MS);
+      replayTimeoutRef.current = setTimeout(() => {
+        const el = videoRef.current;
+        if (el) {
+          el.currentTime = 0;
+          el.play().catch(() => {});
+        }
+        setVideoPhase("video");
+      }, VIDEO_REPLAY_HOLD_MS);
+    }, MEDIA_FADE_MS);
   };
 
   // Belt-and-suspenders cleanup on unmount.
@@ -359,12 +365,11 @@ export default function ProjectSection({
         >
           {/* Figma: 'Inter', 33.256px / 40px line-height, -2px top+bottom
               margin -- "THIS IS " is regular (400), the project name is
-              bold (700). Width-constrained (only this line, not the
-              subtitle) so a long project name wraps onto a second line
-              here instead of running off-screen. */}
+              bold (700). No width constraint -- the box hugs the text
+              instead of wrapping it, same as the subtitle below. */}
           <p
+            className="whitespace-nowrap"
             style={{
-              width: TITLE_WIDTH,
               fontSize: TITLE_FONT_SIZE,
               lineHeight: TITLE_LINE_HEIGHT,
               marginTop: TITLE_MARGIN_Y,
@@ -373,11 +378,9 @@ export default function ProjectSection({
           >
             THIS IS <span className="font-bold">{name}</span>
           </p>
-          {/* Figma: 'Inter', 400, 24px / 29px line-height. Deliberately NOT
-              width-constrained to TITLE_WIDTH like the title above it --
-              that box is sized for the title text, and several subtitles
-              (e.g. "Hotel de luxe à la samaritaine, LVMH") are longer than
-              it, which was wrapping them awkwardly. Single line, always. */}
+          {/* Figma: 'Inter', 400, 24px / 29px line-height. Also hugs its
+              own text, never wraps -- several subtitles (e.g. "Hotel de
+              luxe à la samaritaine, LVMH") are longer than the title. */}
           <p
             className="whitespace-nowrap font-normal text-white/90 transition-opacity duration-500"
             style={{
