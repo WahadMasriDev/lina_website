@@ -73,7 +73,12 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
         />
       )}
 
-      <div
+      {/* Clicking the logo, in either state, goes back to the landing
+          page -- the standard "logo = home" convention. Works fine even
+          when already on "/": Link just no-ops there. */}
+      <Link
+        href="/"
+        aria-label="Lina Zakaria — Retour à l'accueil"
         className="relative flex items-center"
         style={{ height: LOGO_HEIGHT, width: LOGO_WHOLE_WIDTH }}
       >
@@ -81,7 +86,7 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src="/images/logo-whole.svg"
-            alt="Lina Zakaria"
+            alt=""
             style={{ height: LOGO_HEIGHT }}
             className="w-auto"
           />
@@ -90,7 +95,7 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/logo-icon.svg"
-              alt="Lina Zakaria"
+              alt=""
               style={{
                 height: LOGO_HEIGHT,
                 opacity: hovered ? 0 : 1,
@@ -112,7 +117,7 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
             />
           </>
         )}
-      </div>
+      </Link>
 
       {/*
         Figma: 'Acumin Variable Concept', weight 194, 15px/18px. That's a
