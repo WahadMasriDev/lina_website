@@ -19,45 +19,28 @@ type ProjectSectionProps = {
   href?: string;
 };
 
-const MONTAGE_INTERVAL_MS = 2200;
-const MONTAGE_CROSSFADE_MS = 1400;
+// Sped up per review feedback ("transition can be faster", referencing
+// paulkalkbrenner.net's snappier pacing) -- was 2200/1400.
+const MONTAGE_INTERVAL_MS = 1400;
+const MONTAGE_CROSSFADE_MS = 650;
 const MEDIA_FADE_MS = 1500;
 
-// Intro choreography, timed from the moment a section first becomes
-// active:
-//  1. dimmed -- card darkens, title invisible.
-//  2. wave   -- title fades in centered over the card and sweeps bold
-//               word by word ("this" -> "is" -> name), ~2s total.
-//  3. transfer -- the title glides down to its resting spot in the
-//               bottom-left corner while the card brightens back up.
-//  4. settled -- subtitle and "explore more" fade in on the completed,
-//               static look, and the video/photo carousel (or "coming
-//               soon") starts playing on its own -- no hover required.
-// This only ever plays once per section, the first time it's reached --
-// it's an introduction, not a loop, so leaving and coming back later
-// leaves it settled rather than replaying.
-const WAVE_START_DELAY_MS = 1000;
-const WAVE_STEP_MS = 700;
-const WAVE_HOLD_MS = 600; // lets "name" finish bolding before the card unfolds
-const TRANSFER_DURATION_MS = 950;
-const TRANSFER_HOLD_MS = 200;
+// Reveal choreography, per review feedback: the old version was a whole
+// intro sequence (card dims, title fades in centered and scaled up over
+// the image, sweeps bold word-by-word, then glides down into its resting
+// corner). That's gone -- "remove it all together" -- replaced with
+// something much simpler: the hero image alone is visible the instant a
+// section arrives, and the title/subtitle just fade in, in place, at their
+// normal resting position, a beat later. No scaling, no centering, no
+// word-sweep.
+const TEXT_REVEAL_DELAY_MS = 500;
+const TEXT_FADE_MS = 500;
 
 // A beat of stillness before the video/photo carousel starts, every time
-// a section becomes the active one -- first visit (after the text intro
-// settles) or a repeat one. Without this, media on a repeat visit would
-// start the instant you arrive; this holds it back one second so there's
-// always a still moment first.
+// a section becomes the active one. Without this, media would start the
+// instant you arrive; this holds it back so there's always a still moment
+// first.
 const MEDIA_START_DELAY_MS = 1000;
-
-// Which projects have already played their text intro this page load.
-// Deliberately a plain module-level variable, not React state or
-// sessionStorage/localStorage: it lives as long as this JS module does,
-// which means it survives a client-side route navigation away from the
-// landing page and back (Next.js unmounts/remounts the section components,
-// but never re-evaluates the module for that), while still resetting on an
-// actual browser refresh -- a refresh re-runs the module from scratch, so
-// the Set starts empty again exactly like everything else on the page.
-const introPlayedProjects = new Set<string>();
 
 // The Figma design overlays a soft dark gradient ("Vector") on top of each
 // hero photo, rising from the bottom edge, before the text sits on it. The
@@ -89,112 +72,52 @@ export default function ProjectSection({
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
 
-  // Already played this project's intro earlier this page load (e.g. it
-  // ran once, then this component unmounted when navigating into the
-  // project's own page and is now remounting on the way back). In that
-  // case skip straight to the finished, settled look -- no dim flash, no
-  // wave replay -- rather than starting from "idle" again.
-  const alreadyPlayed = introPlayedProjects.has(name);
-
-  // "THIS <wave> IS <wave> NAME" -- each project section is a full-screen
-  // scroll-snap panel on the landing page, so "becoming active" the first
-  // time (snapped to, mostly on screen) is the moment this intro plays.
-  const [wave, setWave] = useState<"idle" | "this" | "is" | "name">(
-    alreadyPlayed ? "name" : "idle"
-  );
-  const [phase, setPhase] = useState<
-    "idle" | "dimmed" | "wave" | "transfer" | "settled"
-  >(alreadyPlayed ? "settled" : "idle");
-  // Once the intro has fully played, it's done for good -- scrolling away
-  // and back must not replay it or reset the card to dimmed/hidden.
-  const hasPlayedRef = useRef(alreadyPlayed);
-  // Separate from the above: whether the section is *currently* visible,
-  // tracked every time regardless of hasPlayedRef. The text intro only
-  // ever plays once, but video/carousel playback should still start and
-  // stop with actual visibility every time you scroll to or away from a
-  // project -- otherwise a video left running in the background keeps
-  // playing (or looping) the whole session, so by the time you scroll
-  // back it's landed on some arbitrary mid-loop frame instead of the
-  // beginning.
+  // Whether the section is currently the one on screen. Text fades in a
+  // beat after arriving, and fades back out (resetting) the moment you
+  // scroll away, so it plays again fresh every time you come back --
+  // there's no "only once" tracking any more, it's simple and repeatable.
   const [inView, setInView] = useState(false);
+  const [textVisible, setTextVisible] = useState(false);
 
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
 
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    const schedule = (fn: () => void, ms: number) => {
-      timers.push(setTimeout(fn, ms));
-    };
-
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        timers.forEach(clearTimeout);
-        timers.length = 0;
-        setInView(entry.isIntersecting);
-
-        if (!entry.isIntersecting) {
-          if (!hasPlayedRef.current) {
-            setPhase("idle");
-            setWave("idle");
-          }
-          return;
-        }
-
-        if (hasPlayedRef.current) {
-          // Already introduced -- stay settled, nothing left to do.
-          return;
-        }
-
-        setPhase("dimmed");
-        setWave("idle");
-
-        schedule(() => setPhase("wave"), WAVE_START_DELAY_MS);
-        schedule(() => setWave("this"), WAVE_START_DELAY_MS);
-        schedule(() => setWave("is"), WAVE_START_DELAY_MS + WAVE_STEP_MS);
-        schedule(() => setWave("name"), WAVE_START_DELAY_MS + WAVE_STEP_MS * 2);
-
-        const transferAt = WAVE_START_DELAY_MS + WAVE_STEP_MS * 2 + WAVE_HOLD_MS;
-        schedule(() => setPhase("transfer"), transferAt);
-        schedule(() => {
-          setPhase("settled");
-          hasPlayedRef.current = true;
-          introPlayedProjects.add(name);
-        }, transferAt + TRANSFER_DURATION_MS + TRANSFER_HOLD_MS);
-      },
+      ([entry]) => setInView(entry.isIntersecting),
       // High threshold: only counts as "arrived" once a section has
-      // essentially fully taken over the screen, so the slide itself is
-      // still clearly visible before any dimming/settle effect kicks in.
+      // essentially fully taken over the screen.
       { threshold: 0.97 }
     );
     observer.observe(el);
-    return () => {
-      timers.forEach(clearTimeout);
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, []);
 
-  const introHidden = phase === "idle" || phase === "dimmed";
-  const centered = phase === "idle" || phase === "dimmed" || phase === "wave";
-  const dimmed = phase === "dimmed" || phase === "wave";
-  const descriptionVisible = phase === "settled";
-  const settledAndVisible = phase === "settled" && inView;
+  useEffect(() => {
+    if (!inView) {
+      setTextVisible(false);
+      return;
+    }
+    const id = setTimeout(() => setTextVisible(true), TEXT_REVEAL_DELAY_MS);
+    return () => clearTimeout(id);
+  }, [inView]);
 
-  // Once the intro has settled AND the section is actually the one on
-  // screen right now, the card's video/photo carousel or "coming soon"
-  // plays on its own -- no hover needed, and it stops the moment you
-  // scroll away rather than running forever in the background. A short
+  const descriptionVisible = textVisible;
+
+  // Once the section is on screen and its text has faded in, the card's
+  // video/photo carousel or "coming soon" starts playing on its own -- no
+  // hover needed, and it stops the moment you scroll away. A short
   // MEDIA_START_DELAY_MS beat holds it back on every arrival so there's
   // always a still moment before anything starts moving.
   const [mediaReady, setMediaReady] = useState(false);
   useEffect(() => {
-    if (!settledAndVisible) {
+    if (!(inView && textVisible)) {
       setMediaReady(false);
       return;
     }
     const id = setTimeout(() => setMediaReady(true), MEDIA_START_DELAY_MS);
     return () => clearTimeout(id);
-  }, [settledAndVisible]);
+  }, [inView, textVisible]);
 
   const active = mediaReady;
 
@@ -211,12 +134,11 @@ export default function ProjectSection({
     // fresh array each render; length is what actually matters here.
   }, [active, montage?.length]);
 
-  // Mount the <video> tag lazily, once the intro settles, rather than
-  // always. Some browsers paint an unloaded <video> element as an opaque
-  // black box even at opacity-0 (a compositor quirk, not a CSS bug) --
-  // with the tag always present that blacked out the hero photo
-  // underneath it permanently. Only creating the element once it's
-  // actually needed avoids that entirely.
+  // Mount the <video> tag lazily, once active, rather than always. Some
+  // browsers paint an unloaded <video> element as an opaque black box even
+  // at opacity-0 (a compositor quirk, not a CSS bug) -- with the tag always
+  // present that blacked out the hero photo underneath it permanently. Only
+  // creating the element once it's actually needed avoids that entirely.
   useEffect(() => {
     if (active && video) setVideoMounted(true);
   }, [active, video]);
@@ -317,18 +239,6 @@ export default function ProjectSection({
         }}
       />
 
-      {/* Intro-only darkening: the card starts dimmed while the title
-          animates centered over it, then brightens back up as the title
-          transfers down to its resting corner. */}
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-black transition-opacity ease-out"
-        style={{
-          opacity: dimmed ? 0.78 : 0,
-          transitionDuration: `${TRANSFER_DURATION_MS}ms`,
-        }}
-      />
-
       {comingSoon && (
         <div
           aria-hidden
@@ -356,69 +266,22 @@ export default function ProjectSection({
         {...(wrapperProps as any)}
         className="absolute inset-x-0 bottom-10 flex items-end justify-between px-4 text-white sm:bottom-16 sm:px-8 md:bottom-20"
       >
-        {/* This block is the "animation" -- it starts hidden and centered
-            (scaled up) over the middle of the card, plays the bold word
-            wave there, then glides down/back to size into its resting
-            bottom-left spot once the wave finishes. The subtitle rides
-            along but stays invisible until settled, so it never flashes
-            at the wrong scale mid-transfer. */}
+        {/* Sits at its resting position at all times -- only opacity
+            animates, fading in TEXT_REVEAL_DELAY_MS after the section
+            arrives on screen. No scale, no centering, no word-by-word
+            bold sweep. */}
         <div
           style={{
-            // Horizontal centering used to be a flat `6vw` translate, tuned
-            // by eye against "CHEVAL BLANC". That's a fixed distance, not
-            // a position -- it doesn't account for how wide the text
-            // actually is, so a longer name (e.g. "MCINTOSH X VIRGIL
-            // ABLOH") scaled up 1.4x just ran off the left edge and got
-            // clipped by the section's overflow-hidden. `calc(50vw - 50%)`
-            // fixes that: percentages in a transform always resolve
-            // against the element's own natural (untransformed) width, so
-            // this recenters correctly no matter how long the name is,
-            // regardless of the 1.4x scale riding along in the same
-            // transform.
-            transform: centered
-              ? "translate(calc(50vw - 50%), -36vh) scale(1.4)"
-              : "translate(0, 0) scale(1)",
-            opacity: introHidden ? 0 : 1,
-            // Centering the box doesn't help if the box itself, once
-            // scaled 1.4x, is simply wider than the screen -- a long name
-            // like "MCINTOSH X VIRGIL ABLOH" on a phone still overflowed
-            // both edges even perfectly centered. Capping the *pre-scale*
-            // width to 65vw guarantees the scaled result (65vw * 1.4 =
-            // 91vw) always fits, and since text wraps by default, a name
-            // that hits the cap just breaks onto a second line instead of
-            // running off-screen. Centered text-align keeps a wrapped
-            // title looking intentional rather than ragged.
-            maxWidth: centered ? "65vw" : "none",
-            textAlign: centered ? "center" : "left",
-            transitionProperty: "transform, opacity",
-            transitionDuration: `${TRANSFER_DURATION_MS}ms, 700ms`,
-            transitionTimingFunction: "cubic-bezier(.16,1,.3,1)",
+            opacity: textVisible ? 1 : 0,
+            transitionProperty: "opacity",
+            transitionDuration: `${TEXT_FADE_MS}ms`,
+            transitionTimingFunction: "ease-out",
           }}
         >
           {/* Figma: 'Inter', 33.256px / 40px line-height -- "THIS IS " is
-              regular (400), the project name is bold (700). The intro wave
-              sweeps bold across the three tokens on activation, then rests
-              here (name bold, rest regular). Font-weight transitions
-              smoothly because Inter Variable supports interpolating it. */}
+              regular (400), the project name is bold (700). */}
           <p className="text-xl sm:text-2xl md:text-[33.256px] md:leading-[40px]">
-            <span
-              className="inline-block transition-[font-weight] duration-500"
-              style={{ fontWeight: wave === "this" ? 700 : 400 }}
-            >
-              THIS
-            </span>{" "}
-            <span
-              className="inline-block transition-[font-weight] duration-500"
-              style={{ fontWeight: wave === "is" ? 700 : 400 }}
-            >
-              IS
-            </span>{" "}
-            <span
-              className="inline-block transition-[font-weight] duration-500"
-              style={{ fontWeight: wave === "name" ? 700 : 400 }}
-            >
-              {name}
-            </span>
+            THIS IS <span className="font-bold">{name}</span>
           </p>
           {/* Figma: 'Inter', 400, 24px / 29px line-height */}
           <p
@@ -428,10 +291,10 @@ export default function ProjectSection({
             {subtitle}
           </p>
         </div>
-        {/* Figma: 'Inter', 400, 20.568px / 25px line-height -- once settled,
-            a small arrow quietly nudges back and forth on a loop to draw
-            the eye toward it as something clickable, rather than sitting
-            fully static. */}
+        {/* Figma: 'Inter', 400, 20.568px / 25px line-height -- once
+            visible, a small arrow quietly nudges back and forth on a loop
+            to draw the eye toward it as something clickable, rather than
+            sitting fully static. */}
         <div
           className="hidden shrink-0 items-center gap-2 text-sm font-normal text-white/90 transition-opacity duration-500 sm:flex md:text-[20.568px] md:leading-[25px]"
           style={{ opacity: descriptionVisible ? 1 : 0 }}
