@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 // At rest, just the icon mark (logo-icon.svg). Hovering anywhere over the
@@ -38,9 +39,15 @@ type HeaderProps = {
    * backing itself should be solid black, not a frosted/blurred glass
    * effect -- the hover-only behaviour stays. */
   overlay?: boolean;
+  /** Skips the icon/hover-to-full-lockup behaviour entirely and just
+   * always shows the full "LINA ZAKARIA" wordmark. Used on standalone
+   * pages like not-found.tsx, where there's no hero content underneath
+   * competing for attention, so the compact icon-at-rest treatment isn't
+   * needed -- the name can just sit there. */
+  staticLogo?: boolean;
 };
 
-export default function Header({ overlay = false }: HeaderProps) {
+export default function Header({ overlay = false, staticLogo = false }: HeaderProps) {
   // Tracks hover over the whole header, on every page (not gated on
   // `overlay`) -- the logo swap needs it everywhere, even though the
   // black backing below is still landing-page-only.
@@ -66,51 +73,83 @@ export default function Header({ overlay = false }: HeaderProps) {
         />
       )}
 
-      <div
+      {/* Clicking the logo, in either state, goes back to the landing
+          page -- the standard "logo = home" convention. Works fine even
+          when already on "/": Link just no-ops there. */}
+      <Link
+        href="/"
+        aria-label="Lina Zakaria — Retour à l'accueil"
         className="relative flex items-center"
         style={{ height: LOGO_HEIGHT, width: LOGO_WHOLE_WIDTH }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/logo-icon.svg"
-          alt="Lina Zakaria"
-          style={{
-            height: LOGO_HEIGHT,
-            opacity: hovered ? 0 : 1,
-            transitionDuration: `${FRAME_FADE_MS}ms`,
-          }}
-          className="absolute left-0 top-0 w-auto transition-opacity ease-out"
-        />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/logo-whole.svg"
-          alt=""
-          aria-hidden
-          style={{
-            height: LOGO_HEIGHT,
-            opacity: hovered ? 1 : 0,
-            transitionDuration: `${FRAME_FADE_MS}ms`,
-          }}
-          className="absolute left-0 top-0 w-auto transition-opacity ease-out"
-        />
-      </div>
+        {staticLogo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src="/images/logo-whole.svg"
+            alt=""
+            style={{ height: LOGO_HEIGHT }}
+            className="w-auto"
+          />
+        ) : (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/logo-icon.svg"
+              alt=""
+              style={{
+                height: LOGO_HEIGHT,
+                opacity: hovered ? 0 : 1,
+                transitionDuration: `${FRAME_FADE_MS}ms`,
+              }}
+              className="absolute left-0 top-0 w-auto transition-opacity ease-out"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/logo-whole.svg"
+              alt=""
+              aria-hidden
+              style={{
+                height: LOGO_HEIGHT,
+                opacity: hovered ? 1 : 0,
+                transitionDuration: `${FRAME_FADE_MS}ms`,
+              }}
+              className="absolute left-0 top-0 w-auto transition-opacity ease-out"
+            />
+          </>
+        )}
+      </Link>
 
       {/*
         Figma: 'Acumin Variable Concept', weight 194, 15px/18px. That's a
         paid Adobe Fonts family we can't self-host the way we did Inter --
         falling back to the site sans-serif stack at a light weight until
         real font files are provided.
+
+        These used to be "#about"/"#playground"/"#work" anchors with no
+        matching section on the page -- dead links everywhere. WORK now
+        goes to the landing page itself (that's where the work already
+        lives); ABOUT and PERSONAL PLAYGROUND don't have real pages yet,
+        so they go to the placeholder route ("/404",
+        see page.tsx) until they do.
+
+        ABOUT/PERSONAL PLAYGROUND are plain <a> tags, not <Link> --
+        "/404" has no page.tsx, so Next's client-side
+        router can't find route data for it and silently fails to
+        navigate on a soft transition. A real <a> forces a full page
+        load, which correctly hits the static host's 404 handling (our
+        styled not-found.tsx) instead of going nowhere. WORK stays a
+        <Link> since "/" is a real, always-present route.
       */}
       <nav className="relative hidden md:flex w-[360px] items-center justify-between text-[15px] leading-[18px] font-light text-white">
-        <a href="#about" className="hover:opacity-70">
+        <a href="/404" className="hover:opacity-70">
           ABOUT
         </a>
-        <a href="#playground" className="hover:opacity-70">
+        <a href="/404" className="hover:opacity-70">
           PERSONAL PLAYGROUND
         </a>
-        <a href="#work" className="hover:opacity-70">
+        <Link href="/" className="hover:opacity-70">
           WORK
-        </a>
+        </Link>
       </nav>
     </header>
   );
