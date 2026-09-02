@@ -2,17 +2,16 @@
 
 import { useState } from "react";
 
-// At rest, just the icon mark (logo-icon.svg). On hover, it expands into
-// the full "LINA ZAKARIA" lockup (logo-whole.svg, icon + wordmark already
-// positioned together as one piece from web/assets/logo/whole-logo.svg).
-// Both render at the same height -- only the width (and which image is
-// visible) changes on hover.
+// At rest, just the icon mark (logo-icon.svg). Hovering anywhere over the
+// header -- not just the logo itself -- swaps it to the full "LINA
+// ZAKARIA" lockup (logo-whole.svg, icon + wordmark already positioned
+// together as one piece from web/assets/logo/whole-logo.svg), same
+// height, no transition -- it just appears/disappears with the hover.
 const LOGO_HEIGHT = 56; // px -- tweak directly if it looks off against Figma
 const LOGO_ICON_ASPECT = 28 / 42; // logo-icon.svg's own width/height
 const LOGO_WHOLE_ASPECT = 140 / 56; // logo-whole.svg's own width/height
 const LOGO_ICON_WIDTH = LOGO_HEIGHT * LOGO_ICON_ASPECT;
 const LOGO_WHOLE_WIDTH = LOGO_HEIGHT * LOGO_WHOLE_ASPECT;
-const LOGO_HOVER_MS = 300;
 
 const FRAME_FADE_MS = 400;
 
@@ -27,8 +26,10 @@ type HeaderProps = {
 };
 
 export default function Header({ overlay = false }: HeaderProps) {
+  // Tracks hover over the whole header, on every page (not gated on
+  // `overlay`) -- the logo swap needs it everywhere, even though the
+  // black backing below is still landing-page-only.
   const [hovered, setHovered] = useState(false);
-  const [logoHovered, setLogoHovered] = useState(false);
   const framed = overlay && hovered;
 
   return (
@@ -36,8 +37,8 @@ export default function Header({ overlay = false }: HeaderProps) {
       className={`flex h-[96px] w-full items-center justify-between px-4 sm:px-8 ${
         overlay ? "fixed inset-x-0 top-0 z-50" : "relative"
       }`}
-      onMouseEnter={() => overlay && setHovered(true)}
-      onMouseLeave={() => overlay && setHovered(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       {overlay && (
         <div
@@ -52,27 +53,17 @@ export default function Header({ overlay = false }: HeaderProps) {
 
       <div
         className="relative flex items-center"
-        onMouseEnter={() => setLogoHovered(true)}
-        onMouseLeave={() => setLogoHovered(false)}
         style={{
           height: LOGO_HEIGHT,
-          width: logoHovered ? LOGO_WHOLE_WIDTH : LOGO_ICON_WIDTH,
-          transitionProperty: "width",
-          transitionDuration: `${LOGO_HOVER_MS}ms`,
-          transitionTimingFunction: "ease-out",
+          width: hovered ? LOGO_WHOLE_WIDTH : LOGO_ICON_WIDTH,
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/logo-icon.svg"
           alt="Lina Zakaria"
-          style={{
-            height: LOGO_HEIGHT,
-            opacity: logoHovered ? 0 : 1,
-            transitionProperty: "opacity",
-            transitionDuration: `${LOGO_HOVER_MS}ms`,
-            transitionTimingFunction: "ease-out",
-          }}
+          hidden={hovered}
+          style={{ height: LOGO_HEIGHT }}
           className="absolute left-0 top-0 w-auto"
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -80,13 +71,8 @@ export default function Header({ overlay = false }: HeaderProps) {
           src="/images/logo-whole.svg"
           alt=""
           aria-hidden
-          style={{
-            height: LOGO_HEIGHT,
-            opacity: logoHovered ? 1 : 0,
-            transitionProperty: "opacity",
-            transitionDuration: `${LOGO_HOVER_MS}ms`,
-            transitionTimingFunction: "ease-out",
-          }}
+          hidden={!hovered}
+          style={{ height: LOGO_HEIGHT }}
           className="absolute left-0 top-0 w-auto"
         />
       </div>
