@@ -253,7 +253,7 @@ export default function ProjectSection({
   const showingVideo = active && video && videoPhase === "video";
 
   // comingSoon projects link to the placeholder route in page.tsx
-  // ("/bientot"), which has no page.tsx of its own -- a
+  // ("/404"), which has no page.tsx of its own -- a
   // <Link> soft-navigation to a route with no route data silently fails
   // to go anywhere, so those use a plain <a> instead, forcing a full page
   // load that correctly hits the static host's 404 handling (our styled
