@@ -6,8 +6,10 @@ import { useState } from "react";
 // header -- not just the logo itself -- swaps it to the full "LINA
 // ZAKARIA" lockup (logo-whole.svg, icon + wordmark already positioned
 // together as one piece from web/assets/logo/whole-logo.svg), same
-// height. Crossfades with the same soft fade used for the header's own
-// black backing (FRAME_FADE_MS), rather than snapping instantly.
+// height. Just an opacity fade (same FRAME_FADE_MS as the header's own
+// black backing) -- the two images sit stacked on top of each other via
+// absolute positioning, so nothing else (size, position) needs to move
+// or animate, only which one is visible.
 const LOGO_HEIGHT = 56; // px -- tweak directly if it looks off against Figma
 // Both files' own viewBoxes are the same 43px-tall crop now (updated by
 // Nezar so the icon mark reads at the same visual size standalone and
@@ -58,11 +60,10 @@ export default function Header({ overlay = false }: HeaderProps) {
       )}
 
       <div
-        className="relative flex items-center transition-[width] ease-out"
+        className="relative flex items-center"
         style={{
           height: LOGO_HEIGHT,
           width: hovered ? LOGO_WHOLE_WIDTH : LOGO_ICON_WIDTH,
-          transitionDuration: `${FRAME_FADE_MS}ms`,
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
