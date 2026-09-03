@@ -68,11 +68,11 @@ export default function BoseBeijingPage() {
           photo -- matches Figma's "Gallery" (342:2341). */}
       <Reveal index={1} className="w-full px-4 sm:px-8 lg:px-[95px]">
         <div className="flex w-full flex-col items-end gap-[11px]">
-          <div className="flex w-[173px] flex-col items-start">
-            <p className="text-base font-normal leading-normal text-black">
+          <div className="flex w-fit flex-col items-start">
+            <p className="whitespace-nowrap text-base font-normal leading-normal text-black">
               3D renders de l&rsquo;espace
             </p>
-            <div className="mt-1 h-px w-[172px] bg-black/30" />
+            <div className="mt-1 h-px w-full bg-black/30" />
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
