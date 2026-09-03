@@ -117,12 +117,12 @@ export default function Footer() {
           >
             Personal Playground
           </a>
-          <a
-            href="/404"
+          <Link
+            href="/about"
             className="text-[13px] uppercase leading-4 text-[#F5F5F7] hover:opacity-70"
           >
             About
-          </a>
+          </Link>
           <Link
             href="/#contact"
             className="text-[13px] uppercase leading-4 text-[#F5F5F7] hover:opacity-70"

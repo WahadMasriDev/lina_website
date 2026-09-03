@@ -110,12 +110,12 @@ export default function FooterLight() {
           >
             Personal Playground
           </a>
-          <a
-            href="/404"
+          <Link
+            href="/about"
             className="text-[13px] uppercase leading-4 text-black hover:opacity-70"
           >
             About
-          </a>
+          </Link>
           <Link
             href="/#contact"
             className="text-[13px] uppercase leading-4 text-black hover:opacity-70"

@@ -163,9 +163,9 @@ export default function Header({
           light ? "text-black" : "text-white"
         }`}
       >
-        <a href="/404" className="hover:opacity-70">
+        <Link href="/about" className="hover:opacity-70">
           ABOUT
-        </a>
+        </Link>
         <a href="/404" className="hover:opacity-70">
           PERSONAL PLAYGROUND
         </a>
