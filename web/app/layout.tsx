@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import "@fontsource-variable/inter";
 import "./globals.css";
 import LoadingScreen from "./components/LoadingScreen";
+import { AppReadyProvider } from "./components/AppReady";
 
 // The logo/nav wordmark in the design uses 'Acumin Variable Concept', a
 // paid Adobe Fonts family that can't be bundled the same way. The logo
@@ -24,8 +25,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col font-sans">
-        <LoadingScreen />
-        {children}
+        <AppReadyProvider>
+          <LoadingScreen />
+          {children}
+        </AppReadyProvider>
       </body>
     </html>
   );
