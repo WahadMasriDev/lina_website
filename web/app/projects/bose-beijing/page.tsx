@@ -121,9 +121,10 @@ export default function BoseBeijingPage() {
         />
       </Reveal>
 
-      {/* Two more full-bleed shots leading into the footer -- matches
-          Figma's "Footer Content" (342:2353). */}
-      <Reveal index={4} className="w-full">
+      {/* Two more shots leading into the footer, inset to the page's
+          side margins like the rest of the content (not full-bleed) --
+          matches Figma's "Footer Content" (342:2353). */}
+      <Reveal index={4} className="w-full px-4 sm:px-8 lg:px-[95px]">
         <div className="flex w-full flex-col items-center gap-[23px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
