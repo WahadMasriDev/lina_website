@@ -3,67 +3,117 @@
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Reveal from "../../components/Reveal";
-import ProjectVideo from "../../components/ProjectVideo";
 
-// Same structural pattern as the Cheval Blanc detail page: hero, main
-// video, two supporting stills, footer -- built from the real assets in
-// web/assets/SOLCOTTON/.
+// Rebuilt against the "ready for dev" Figma frame (node 313:639), the same
+// treatment just applied to Cheval Blanc. Unlike Cheval Blanc, this design
+// has no hero video or carousel -- it's a full-bleed hero photo, an intro
+// row (title + case-study copy), and a stack of full-width/paired product
+// and lifestyle shots before the shared footer.
+const IMG = "/images";
+
 export default function SolCottonPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center gap-5 bg-black px-4 pt-[31px] pb-[31px] sm:px-8">
-      <Header />
+    <div className="flex min-h-screen flex-col items-center gap-[70px] bg-black">
+      {/* Hero -- full-bleed, header composited on top, same treatment as
+          Cheval Blanc's rebuilt hero. */}
+      <div className="relative w-full aspect-[1921.63/1017.55] overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`${IMG}/solcotton.png`}
+          alt="SolCotton packaging"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-x-0 top-0 z-10 px-4 sm:px-8">
+          <Header />
+        </div>
+      </div>
 
-      <div className="flex w-full flex-col gap-5">
-        <Reveal index={0}>
-          <section className="relative w-full aspect-[1864/978] overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/solcotton.png"
-              alt="SolCotton"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <div
-              aria-hidden
-              className="absolute inset-x-0 bottom-0 h-2/3 mix-blend-multiply"
-              style={{
-                background:
-                  "linear-gradient(to top, rgba(10,10,12,0.85) 0%, rgba(10,10,12,0.55) 45%, transparent 100%)",
-              }}
-            />
-            <div className="absolute inset-x-0 bottom-10 px-4 text-white sm:bottom-16 sm:px-8 md:bottom-20">
-              <p className="text-xl font-normal sm:text-2xl md:text-[33.256px] md:leading-[40px]">
-                THIS IS <span className="font-bold">SOLCOTTON</span>
-              </p>
-              <p className="mt-2 whitespace-nowrap text-base font-normal leading-normal text-white/90 md:text-[24px] md:leading-[29px]">
-                Marque de cotton de luxe
-              </p>
-            </div>
-          </section>
-        </Reveal>
+      {/* Title + case-study copy, side by side -- same layout Cheval
+          Blanc's intro row uses. */}
+      <Reveal index={0} className="w-full px-4 sm:px-8 lg:px-[95px]">
+        <div className="flex w-full flex-col gap-8 text-white lg:flex-row lg:items-start lg:justify-between lg:gap-16">
+          <div className="shrink-0">
+            <p className="text-2xl font-normal leading-normal">
+              THIS IS <span className="font-bold">SOL COTTON</span>
+            </p>
+            <p className="mt-1 text-lg font-normal leading-normal text-white/90">
+              Marque de cotton de luxe
+            </p>
+          </div>
+          <div className="max-w-[695px] text-base font-normal leading-normal text-white/90">
+            <p>
+              Pour Sol Cotton, mon travail s&rsquo;est principalement concentré
+              sur la conception et la réalisation du packaging, avec
+              l&rsquo;objectif de traduire l&rsquo;univers de la marque à
+              travers une identité plus premium, cohérente et reconnaissable.
+            </p>
+            <p className="mt-4">
+              J&rsquo;ai également proposé une piste de refonte du logo et du
+              monogramme, intégrant la notion de coton dans le «&nbsp;O&nbsp;».
+              Cette proposition a beaucoup plu au client, même si elle
+              n&rsquo;a finalement pas été retenue, la marque ayant préféré
+              conserver son identité existante pour des raisons de budget.
+            </p>
+            <p className="mt-4">
+              Enfin, j&rsquo;ai participé à la session photo, en contribuant
+              à la mise en scène et à la cohérence visuelle des contenus
+              produits pour la marque.
+            </p>
+          </div>
+        </div>
+      </Reveal>
 
-        <Reveal index={1}>
-          <ProjectVideo src="/videos/solcotton.mp4" pressAnimation />
-        </Reveal>
+      {/* Image collection: full-width shot, a side-by-side pair, three more
+          full-width shots -- matches Figma's "Image Collection" (313:650)
+          image-for-image, including its 33px gap. */}
+      <Reveal index={1} className="w-full px-4 sm:px-8 lg:px-[95px]">
+        <div className="flex w-full flex-col items-center gap-[33px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${IMG}/solcotton-bathroom.jpg`}
+            alt="SolCotton, bathroom scene"
+            className="w-full object-cover"
+          />
 
-        <Reveal index={2}>
           <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/solcotton-2.jpg"
-              alt="SolCotton detail"
-              className="w-full object-cover"
+              src={`${IMG}/solcotton-model-1.jpg`}
+              alt="SolCotton, model portrait"
+              className="aspect-[818/897] w-full object-cover"
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/solcotton-3.jpg"
-              alt="SolCotton detail"
-              className="w-full object-cover"
+              src={`${IMG}/solcotton-model-2.jpg`}
+              alt="SolCotton, model portrait"
+              className="aspect-[816/902] w-full object-cover"
             />
           </div>
-        </Reveal>
-      </div>
 
-      <Reveal index={3} className="w-full">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${IMG}/solcotton-cotton-field.jpg`}
+            alt="Raw cotton"
+            className="w-full object-cover"
+          />
+
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${IMG}/solcotton-detail.jpg`}
+            alt="SolCotton product detail"
+            className="w-full object-cover"
+          />
+
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${IMG}/solcotton-boxes-stacked.jpg`}
+            alt="SolCotton packaging, stacked"
+            className="w-full object-cover"
+          />
+        </div>
+      </Reveal>
+
+      <Reveal index={2} className="w-full px-4 pb-[31px] sm:px-8">
         <Footer />
       </Reveal>
     </div>
