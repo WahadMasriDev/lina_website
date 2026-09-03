@@ -4,16 +4,10 @@ import Header from "./components/Header";
 import ProjectSection from "./components/ProjectSection";
 import ContactSection from "./components/ContactSection";
 
-// Real assets now exist for every project except PSG (its assets folder
-// only has stills, no video) -- so "coming soon" is gone entirely, and
-// every card except PSG gets the same photo-at-rest/video-once-active
-// treatment as Cheval Blanc. All six now link to a real detail page.
-//
-// `/404` is a deliberately nonexistent route: it has no page.tsx, so
-// Next.js renders app/not-found.tsx for it -- still used as PSG's
-// placeholder until it has its own video/hero asset.
-const PLACEHOLDER_HREF = "/404";
-
+// Real assets now exist for every project, including PSG (still stills
+// only, no video -- its card just doesn't get the hover-video treatment,
+// same as every other project's own photo-at-rest state). All six now
+// link to a real detail page.
 const projects = [
   {
     image: "/images/cheval-blanc.png",
@@ -46,12 +40,8 @@ const projects = [
   {
     image: "/images/psg-maison-shanghai.png",
     name: "PSG X LA MAISON SHANGHAI",
-    subtitle: "Interior design project",
-    // No video asset exists for PSG yet (only stills) -- keeps the
-    // "coming soon" treatment, and the plain <a> tag it forces avoids the
-    // Next.js static-export Link bug for routes with no page.tsx yet.
-    comingSoon: true,
-    href: PLACEHOLDER_HREF,
+    subtitle: "International activation & interior design",
+    href: "/projects/psg-maison-shanghai",
   },
   {
     image: "/images/hb-antwerp.png",
