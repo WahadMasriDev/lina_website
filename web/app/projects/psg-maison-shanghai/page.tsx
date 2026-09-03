@@ -3,6 +3,7 @@
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Reveal from "../../components/Reveal";
+import Carousel from "../../components/Carousel";
 
 // Built against the "ready for dev" Figma frame (node 313:1411, "5TH
 // PAGE") -- the standard dark treatment every other project page but
@@ -10,10 +11,13 @@ import Reveal from "../../components/Reveal";
 // Structure: full-bleed hero photo with the header composited on top, an
 // intro row (title + case-study copy + a "Read more" affordance -- no
 // extra copy exists to expand into, so like the other placeholder nav
-// items it just points at the site's placeholder route), a full-bleed
-// pair of wide shots, then the same "Image Collection" shape SolCotton
-// uses: one full-width shot, a row of four narrower photos, a pair of two,
-// a final full-width shot, and the shared footer.
+// items it just points at the site's placeholder route), a full-bleed,
+// full-size autoplaying carousel (swipe/drag also works) cycling through
+// the interior renders one at a time -- per Nezar's feedback this section
+// is a carousel in the real design, not the static two-up row Figma's
+// flat export first suggested -- then the same "Image Collection" shape
+// SolCotton uses: one full-width shot, a row of four narrower photos, a
+// pair of two, a final full-width shot, and the shared footer.
 const IMG = "/images";
 
 export default function PsgMaisonShanghaiPage() {
@@ -72,20 +76,22 @@ export default function PsgMaisonShanghaiPage() {
         </div>
       </Reveal>
 
-      {/* Full-bleed pair of wide shots -- matches Figma's "Frame 21"
-          (313:1526) image-for-image, including its 23px gap. */}
-      <Reveal index={1} className="flex w-full items-center gap-[23px]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`${IMG}/psg-shot-1.jpg`}
-          alt="PSG x La Maison Shanghai, interior render"
-          className="w-1/2 object-cover"
-        />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`${IMG}/psg-shot-2.jpg`}
-          alt="PSG x La Maison Shanghai, interior render"
-          className="w-1/2 object-cover"
+      {/* Full-bleed, full-size carousel -- one interior render at a time,
+          autoplaying with swipe/drag support, replacing the static
+          side-by-side "Frame 21" pair. */}
+      <Reveal index={1} className="w-full">
+        <Carousel
+          images={[
+            {
+              src: `${IMG}/psg-shot-1.jpg`,
+              alt: "PSG x La Maison Shanghai, interior render",
+            },
+            {
+              src: `${IMG}/psg-shot-2.jpg`,
+              alt: "PSG x La Maison Shanghai, interior render",
+            },
+          ]}
+          className="aspect-[16/9]"
         />
       </Reveal>
 
