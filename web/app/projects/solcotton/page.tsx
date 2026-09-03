@@ -44,7 +44,7 @@ export default function SolCottonPage() {
               Marque de cotton de luxe
             </p>
           </div>
-          <div className="max-w-[695px] text-base font-normal leading-normal text-black/80">
+          <div className="max-w-[695px] text-base font-normal leading-normal text-black/80 text-justify">
             <p>
               Pour Sol Cotton, mon travail s&rsquo;est principalement concentré
               sur la conception et la réalisation du packaging, avec

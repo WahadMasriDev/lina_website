@@ -49,7 +49,7 @@ export default function BoseBeijingPage() {
               Marque audio premium
             </p>
           </div>
-          <div className="max-w-[647px] text-base font-normal leading-normal text-black/80">
+          <div className="max-w-[647px] text-base font-normal leading-normal text-black/80 text-justify">
             <p>
               En collaboration avec Arnaud Faverjon, j&rsquo;ai participé à
               la conception de l&rsquo;espace et réalisé sa modélisation 3D

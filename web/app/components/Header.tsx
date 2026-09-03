@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { PROJECT_LINKS } from "../data/projects";
 
 // At rest, just the icon mark (logo-icon.svg). Hovering anywhere over the
 // header -- not just the logo itself -- swaps it to the full "LINA
@@ -64,6 +65,10 @@ export default function Header({
   // black backing below is still landing-page-only.
   const [hovered, setHovered] = useState(false);
   const framed = overlay && hovered;
+  // WORK's own dropdown, listing every project -- separate from the
+  // header-wide `hovered` state above (that one only drives the overlay
+  // backing + logo swap).
+  const [workOpen, setWorkOpen] = useState(false);
 
   return (
     <header
@@ -164,9 +169,47 @@ export default function Header({
         <a href="/404" className="hover:opacity-70">
           PERSONAL PLAYGROUND
         </a>
-        <Link href="/" className="hover:opacity-70">
-          WORK
-        </Link>
+        {/* WORK still goes to the landing page on click (unchanged), but
+            hovering it now reveals an elegant dropdown linking straight
+            to any individual project -- "make me go to any of the
+            projects" -- built off the same shared PROJECT_LINKS list the
+            landing page's own cards are named from, so it can never drift
+            out of sync with what's actually on the site. */}
+        <div
+          className="relative"
+          onMouseEnter={() => setWorkOpen(true)}
+          onMouseLeave={() => setWorkOpen(false)}
+        >
+          <Link href="/" className="hover:opacity-70">
+            WORK
+          </Link>
+          <div
+            className={`absolute right-0 top-full z-50 pt-3 transition-all ease-out ${
+              workOpen
+                ? "pointer-events-auto translate-y-0 opacity-100"
+                : "pointer-events-none -translate-y-1 opacity-0"
+            }`}
+            style={{ transitionDuration: `${FRAME_FADE_MS}ms` }}
+          >
+            <div
+              className={`flex w-max min-w-[220px] flex-col gap-3 border px-5 py-4 backdrop-blur-sm ${
+                light
+                  ? "border-black/10 bg-white/95 text-black"
+                  : "border-white/10 bg-black/90 text-white"
+              }`}
+            >
+              {PROJECT_LINKS.map((project) => (
+                <Link
+                  key={project.href}
+                  href={project.href}
+                  className="whitespace-nowrap text-[13px] font-light tracking-wide opacity-80 transition-opacity hover:opacity-100"
+                >
+                  {project.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
       </nav>
     </header>
   );

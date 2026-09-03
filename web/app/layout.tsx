@@ -9,6 +9,7 @@ import "@fontsource-variable/inter";
 import "./globals.css";
 import LoadingScreen from "./components/LoadingScreen";
 import { AppReadyProvider } from "./components/AppReady";
+import BackToTop from "./components/BackToTop";
 
 // The logo/nav wordmark in the design uses 'Acumin Variable Concept', a
 // paid Adobe Fonts family that can't be bundled the same way. The logo
@@ -28,6 +29,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <AppReadyProvider>
           <LoadingScreen />
           {children}
+          {/* Mounted once here rather than per-page, so every page --
+              landing and every project detail page alike -- gets the
+              same floating "back to top" control for free. */}
+          <BackToTop />
         </AppReadyProvider>
       </body>
     </html>

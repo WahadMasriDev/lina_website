@@ -40,6 +40,7 @@ export default function ChevalBlancPage() {
       <ProjectVideo
         src="/videos/cheval-blanc.mp4"
         pressAnimation
+        autoPlayOnMount
         aspectClassName="aspect-[1920/1080]"
         overlay={
           <div className="absolute inset-x-0 top-0 z-10 px-4 sm:px-8">
@@ -59,7 +60,7 @@ export default function ChevalBlancPage() {
               Hotel de luxe à la samaritaine, LVMH
             </p>
           </div>
-          <div className="max-w-[695px] text-base font-normal leading-normal text-white/90">
+          <div className="max-w-[695px] text-base font-normal leading-normal text-white/90 text-justify">
             <p>
               Dans le cadre d&rsquo;un pitch réunissant plusieurs agences,
               Cheval Blanc nous a invités à imaginer une direction créative

@@ -9,27 +9,35 @@ import Carousel from "../../components/Carousel";
 // PAGE") -- the standard dark treatment every other project page but
 // SolCotton uses (bg-black, white text), confirmed via get_design_context.
 // Structure: full-bleed hero photo with the header composited on top, an
-// intro row (title + case-study copy + a "Read more" affordance -- no
-// extra copy exists to expand into, so like the other placeholder nav
-// items it just points at the site's placeholder route), a full-bleed,
-// full-size autoplaying carousel (swipe/drag also works) cycling through
-// the interior renders one at a time -- per Nezar's feedback this section
-// is a carousel in the real design, not the static two-up row Figma's
-// flat export first suggested -- then the same "Image Collection" shape
-// SolCotton uses: one full-width shot, a row of four narrower photos, a
-// pair of two, a final full-width shot, and the shared footer.
+// intro row (title + case-study copy -- no "Read more" any more, per
+// Nezar's direction to remove that affordance everywhere on the site), a
+// full-bleed, full-size autoplaying carousel (swipe/drag also works)
+// cycling through the interior renders one at a time -- per Nezar's
+// feedback this section is a carousel in the real design, not the static
+// two-up row Figma's flat export first suggested -- then the same "Image
+// Collection" shape SolCotton uses: one full-width shot, a row of four
+// narrower photos, a pair of two, a final full-width shot, and the shared
+// footer.
+//
+// Hero photo and the carousel's third slide were swapped in for the two
+// real renders Nezar sent directly (not from Figma): the "La Maison
+// Shanghai" storefront exterior as the new hero, and an interior retail
+// display shot added to the carousel alongside the two existing interior
+// renders.
 const IMG = "/images";
 
 export default function PsgMaisonShanghaiPage() {
   return (
     <div className="flex min-h-screen flex-col items-center gap-[70px] bg-black">
       {/* Hero -- full-bleed, header composited on top, same treatment as
-          Cheval Blanc/SolCotton's hero. */}
-      <div className="relative w-full aspect-[1922.57/1043.11] overflow-hidden">
+          Cheval Blanc/SolCotton's hero. Swapped to the real "La Maison
+          Shanghai" storefront exterior Nezar sent, replacing the earlier
+          Figma-export interior shot. */}
+      <div className="relative w-full aspect-[965/512] overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={`${IMG}/psg-hero.jpg`}
-          alt="PSG x La Maison Shanghai"
+          src={`${IMG}/psg-storefront-hero.jpg`}
+          alt="PSG x La Maison Shanghai, storefront"
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-x-0 top-0 z-10 px-4 sm:px-8">
@@ -38,9 +46,7 @@ export default function PsgMaisonShanghaiPage() {
       </div>
 
       {/* Title + case-study copy, side by side -- same layout SolCotton's
-          intro row uses. The "Read more" affordance has no further copy
-          behind it in the design, so it's a placeholder link like the
-          Header's own ABOUT/PERSONAL PLAYGROUND items. */}
+          intro row uses. */}
       <Reveal index={0} className="w-full px-4 sm:px-8 lg:px-[95px]">
         <div className="flex w-full flex-col gap-8 text-white lg:flex-row lg:items-start lg:justify-between lg:gap-16">
           <div className="shrink-0">
@@ -52,7 +58,7 @@ export default function PsgMaisonShanghaiPage() {
               International activation &amp; interior design
             </p>
           </div>
-          <div className="max-w-[647px] text-base font-normal leading-normal text-white/90">
+          <div className="max-w-[647px] text-base font-normal leading-normal text-white/90 text-justify">
             <p>
               ICI C&rsquo;EST PARIS — Imaginée par le Paris Saint-Germain,
               cette activation internationale crée un dialogue entre
@@ -67,19 +73,15 @@ export default function PsgMaisonShanghaiPage() {
               visualisations permettant de présenter, tester et faire
               valider l&rsquo;expérience par le client.
             </p>
-            <a
-              href="/404"
-              className="mt-6 inline-block border-b border-white/70 text-base italic leading-normal hover:opacity-70"
-            >
-              Read more
-            </a>
           </div>
         </div>
       </Reveal>
 
       {/* Full-bleed, full-size carousel -- one interior render at a time,
           autoplaying with swipe/drag support, replacing the static
-          side-by-side "Frame 21" pair. */}
+          side-by-side "Frame 21" pair. Third slide is the real interior
+          retail display shot Nezar sent, added alongside the two
+          existing renders. */}
       <Reveal index={1} className="w-full">
         <Carousel
           images={[
@@ -90,6 +92,10 @@ export default function PsgMaisonShanghaiPage() {
             {
               src: `${IMG}/psg-shot-2.jpg`,
               alt: "PSG x La Maison Shanghai, interior render",
+            },
+            {
+              src: `${IMG}/psg-interior-display.jpg`,
+              alt: "PSG x La Maison Shanghai, retail display",
             },
           ]}
           className="aspect-[16/9]"

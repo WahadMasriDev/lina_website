@@ -59,10 +59,13 @@ const projects = [
 // same padding as everything else, and scrolls away normally instead of
 // staying pinned. Spacing matches Figma exactly: 31px of black padding
 // around the whole page, 20px between every stacked block -- the same
-// convention the Cheval Blanc detail page already uses.
+// convention the Cheval Blanc detail page already uses. The side margins
+// now also pick up the same `lg:px-[95px]` step every project detail
+// page uses at large screens, per Nezar's feedback that the landing
+// page's own margins needed to match.
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col items-center gap-5 bg-black px-4 pt-[31px] pb-[31px] sm:px-8">
+    <div className="flex min-h-screen flex-col items-center gap-5 bg-black px-4 pt-[31px] pb-[31px] sm:px-8 lg:px-[95px]">
       <Header />
 
       <div className="flex w-full flex-col gap-5">

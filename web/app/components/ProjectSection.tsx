@@ -207,8 +207,8 @@ export default function ProjectSection({
   // load that correctly hits the static host's 404 handling (our styled
   // not-found.tsx). Finished projects (like Cheval Blanc) link to a real
   // page, so they keep the client-side <Link> transition.
-  const Wrapper = href ? (comingSoon ? "a" : Link) : "div";
-  const wrapperProps = href ? { href } : {};
+  const LinkTag = comingSoon ? "a" : Link;
+  const linkProps = comingSoon ? { href: href ?? "" } : { href: href ?? "" };
 
   return (
     <section
@@ -299,9 +299,11 @@ export default function ProjectSection({
         </div>
       )}
 
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      <Wrapper
-        {...(wrapperProps as any)}
+      {/* Plain text row now -- no longer its own link. The whole card is
+          clickable via the full-cover link below instead, per Nezar's
+          feedback ("press on the whole image project ... not only the
+          explore more button"). */}
+      <div
         className="absolute inset-x-0 bottom-0 flex items-center justify-between px-4 text-white sm:px-8"
         style={{
           paddingBottom: TEXT_INSET_BOTTOM,
@@ -340,7 +342,7 @@ export default function ProjectSection({
           </p>
         </div>
         {/* Figma: 'Inter', 400, 20.568px / 25px line-height. Sits at the
-            Wrapper's right edge via `justify-between` on the row above,
+            text row's right edge via `justify-between` on the row above,
             inset by the same px-4/sm:px-8 as the title's left edge (and
             the Header's own padding) -- no arrow, just the label. */}
         <div
@@ -353,7 +355,21 @@ export default function ProjectSection({
         >
           explore more
         </div>
-      </Wrapper>
+      </div>
+
+      {/* Full-cover click target -- sits above everything else in the
+          card (image, gradient, text) so clicking anywhere on the project
+          image navigates to its page, not just the "explore more" label.
+          Transparent; the visual hover/video treatment is still driven by
+          the section's own onMouseEnter/onMouseLeave above. comingSoon
+          sections have nothing to link to, so they stay unclickable. */}
+      {href && (
+        <LinkTag
+          {...linkProps}
+          aria-label={name}
+          className="absolute inset-0 z-10"
+        />
+      )}
     </section>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useAppReady } from "./AppReady";
 
 type ProjectVideoProps = {
   src: string;
@@ -14,23 +15,40 @@ type ProjectVideoProps = {
   /** Composited on top of the video (e.g. the header, for a full-bleed
    * hero) -- sits in its own absolutely-positioned layer above it. */
   overlay?: React.ReactNode;
+  /** Hero videos only: play immediately (looping) as soon as the page is
+   * ready, instead of waiting for a hover -- per Nezar's feedback ("hero
+   * section is a video ... I want them to run as soon as I'm on the page
+   * not make them hover only"). Every other ProjectVideo usage (the
+   * body/press-animation blocks on e.g. HB Antwerp) keeps the original
+   * hover-to-play behaviour untouched. */
+  autoPlayOnMount?: boolean;
 };
 
-// Per the latest direction: these no longer autoplay on their own --
-// static at rest, plays on hover, same "hero animation on hover"
-// treatment across every project video on the site. A hover can't happen
-// until the loading screen (which sits on top and captures every
-// pointer event while it's up) is gone, so there's no need to also gate
-// this on the app-ready signal the way the old autoplay version did.
+// Per the latest direction (still true for every non-hero usage): these
+// don't autoplay on their own -- static at rest, plays on hover, same
+// "hero animation on hover" treatment. A hover can't happen until the
+// loading screen (which sits on top and captures every pointer event
+// while it's up) is gone, so there's no need to also gate this on the
+// app-ready signal the way an autoplay version would.
 export default function ProjectVideo({
   src,
   pressAnimation = false,
   aspectClassName = "aspect-[1864/978]",
   overlay,
+  autoPlayOnMount = false,
 }: ProjectVideoProps) {
   const [pressed, setPressed] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const ready = useAppReady();
+
+  // Hero usage: start playing (and keep looping) the moment the loading
+  // screen lifts, rather than waiting for a hover that may never come on
+  // a page someone just landed on.
+  useEffect(() => {
+    if (!autoPlayOnMount || !ready) return;
+    videoRef.current?.play().catch(() => {});
+  }, [autoPlayOnMount, ready]);
 
   const handleClick = () => {
     if (!pressAnimation) return;
@@ -43,11 +61,15 @@ export default function ProjectVideo({
 
   // Each hover replays the animation from the start, rather than resuming
   // wherever a previous hover left off -- "the hero animation runs on
-  // hover" reads as a discrete replay, not a pause/resume.
+  // hover" reads as a discrete replay, not a pause/resume. Skipped
+  // entirely for an autoplaying hero: that one just keeps looping
+  // regardless of the mouse.
   const handleMouseEnter = () => {
+    if (autoPlayOnMount) return;
     videoRef.current?.play().catch(() => {});
   };
   const handleMouseLeave = () => {
+    if (autoPlayOnMount) return;
     const video = videoRef.current;
     if (!video) return;
     video.pause();
