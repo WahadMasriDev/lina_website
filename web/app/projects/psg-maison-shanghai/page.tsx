@@ -54,17 +54,18 @@ export default function PsgMaisonShanghaiPage() {
           </div>
           <div className="max-w-[647px] text-base font-normal leading-normal text-white/90">
             <p>
-              ICI C&rsquo;EST PARIS — La Maison Shanghai est une activation
-              internationale imaginée par le Paris Saint-Germain pour faire
-              rayonner l&rsquo;univers culturel du club au-delà du football.
-              Pensée comme un lieu de vie temporaire mêlant sport, art,
-              musique, mode et gastronomie, l&rsquo;édition de Shanghai
-              repose sur le dialogue entre deux villes&nbsp;: l&rsquo;identité
-              architecturale du Parc des Princes rencontre la verticalité et
-              l&rsquo;énergie urbaine de Shanghai. Les volumes se déploient
-              dans l&rsquo;espace, les perspectives se croisent et
-              l&rsquo;architecture devient le support d&rsquo;une fusion
-              culturelle entre Paris et la scène locale.
+              ICI C&rsquo;EST PARIS — Imaginée par le Paris Saint-Germain,
+              cette activation internationale crée un dialogue entre
+              l&rsquo;identité architecturale du Parc des Princes et
+              l&rsquo;énergie urbaine de Shanghai, à travers un lieu mêlant
+              sport, art, musique, mode et gastronomie. Réalisé en seulement
+              une semaine, le projet m&rsquo;a amenée à prendre en charge
+              l&rsquo;intégralité de la production 3D&nbsp;: modélisation du
+              lieu, conception des volumes, façades et aménagements. Aux
+              côtés d&rsquo;Arnaud Faverjon, j&rsquo;ai traduit le concept
+              créatif dans l&rsquo;espace afin de produire des
+              visualisations permettant de présenter, tester et faire
+              valider l&rsquo;expérience par le client.
             </p>
             <a
               href="/404"
