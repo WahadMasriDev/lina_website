@@ -45,9 +45,20 @@ type HeaderProps = {
    * competing for attention, so the compact icon-at-rest treatment isn't
    * needed -- the name can just sit there. */
   staticLogo?: boolean;
+  /** SolCotton's Figma frame (313:639) is a light page -- white
+   * background, black text and logo throughout, unlike every other
+   * project page's dark treatment. Swaps the nav text to black and the
+   * logo to its black variant (logo-*-dark.svg); the hover backing (when
+   * `overlay` is also set) becomes white instead of black so it still
+   * reads as "no backing" against the light page. */
+  light?: boolean;
 };
 
-export default function Header({ overlay = false, staticLogo = false }: HeaderProps) {
+export default function Header({
+  overlay = false,
+  staticLogo = false,
+  light = false,
+}: HeaderProps) {
   // Tracks hover over the whole header, on every page (not gated on
   // `overlay`) -- the logo swap needs it everywhere, even though the
   // black backing below is still landing-page-only.
@@ -65,7 +76,9 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
       {overlay && (
         <div
           aria-hidden
-          className="absolute inset-0 bg-black transition-opacity ease-out"
+          className={`absolute inset-0 transition-opacity ease-out ${
+            light ? "bg-white" : "bg-black"
+          }`}
           style={{
             opacity: framed ? 1 : 0,
             transitionDuration: `${FRAME_FADE_MS}ms`,
@@ -85,7 +98,7 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
         {staticLogo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src="/images/logo-whole.svg"
+            src={light ? "/images/logo-whole-dark.svg" : "/images/logo-whole.svg"}
             alt=""
             style={{ height: LOGO_HEIGHT }}
             className="w-auto"
@@ -94,7 +107,7 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/logo-icon.svg"
+              src={light ? "/images/logo-icon-dark.svg" : "/images/logo-icon.svg"}
               alt=""
               style={{
                 height: LOGO_HEIGHT,
@@ -105,7 +118,7 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/logo-whole.svg"
+              src={light ? "/images/logo-whole-dark.svg" : "/images/logo-whole.svg"}
               alt=""
               aria-hidden
               style={{
@@ -140,7 +153,11 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
         styled not-found.tsx) instead of going nowhere. WORK stays a
         <Link> since "/" is a real, always-present route.
       */}
-      <nav className="relative hidden md:flex w-[360px] items-center justify-between text-[15px] leading-[18px] font-light text-white">
+      <nav
+        className={`relative hidden md:flex w-[360px] items-center justify-between text-[15px] leading-[18px] font-light ${
+          light ? "text-black" : "text-white"
+        }`}
+      >
         <a href="/404" className="hover:opacity-70">
           ABOUT
         </a>
