@@ -57,8 +57,8 @@ const projects = [
 // -- no wheel-jacked full-screen paging, no side dot navigator (neither
 // exists in the design). The header sits static at the top, inside the
 // same padding as everything else, and scrolls away normally instead of
-// staying pinned. Spacing matches Figma exactly: 31px of black padding
-// around the whole page, 20px between every stacked block -- the same
+// staying pinned. Spacing matches Figma exactly: 20px between every
+// stacked block, 31px of black padding at the bottom -- the same
 // convention the Cheval Blanc detail page already uses.
 //
 // Deliberately stays at px-4/sm:px-8 only, with no `lg:px-[95px]` step --
@@ -71,9 +71,16 @@ const projects = [
 // detail page's *body* content picks up lg:px-[95px], not its header).
 // Leaving the single px-4/sm:px-8 layer here is what actually keeps the
 // landing header flush with every other page's header.
+//
+// No top padding any more, per Nezar's follow-up: every detail page's
+// header sits flush against the very top of the viewport (it's
+// composited directly on the hero, no padding above it), so the landing
+// header dropped its own pt-[31px] to match that same flush-top
+// positioning instead of sitting 31px lower than every other page's
+// header.
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col items-center gap-5 bg-black px-4 pt-[31px] pb-[31px] sm:px-8">
+    <div className="flex min-h-screen flex-col items-center gap-5 bg-black px-4 pb-[31px] sm:px-8">
       <Header />
 
       <div className="flex w-full flex-col gap-5">
