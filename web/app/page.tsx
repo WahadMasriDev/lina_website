@@ -24,11 +24,11 @@ const projects = [
     href: "/projects/solcotton",
   },
   {
-    image: "/images/bose-bmw.png",
-    video: "/videos/bose-bmw.mp4",
-    name: "BOSE X BMW",
-    subtitle: "Interior design in Bejing",
-    href: "/projects/bose-bmw",
+    image: "/images/bose-beijing.png",
+    video: "/videos/bose-beijing.mp4",
+    name: "BOSE X BEIJING",
+    subtitle: "Interior design in Beijing",
+    href: "/projects/bose-beijing",
   },
   {
     image: "/images/mcintosh-virgil-abloh.png",
