@@ -26,8 +26,9 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Custom right-edge project navigator replaces the native scrollbar on the
-   landing page -- see ProjectNav.tsx. */
+/* Hides the native scrollbar on a horizontally-draggable strip (e.g.
+   VideoCarousel) while leaving the underlying scroll/drag behavior
+   untouched. */
 .no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -36,16 +37,3 @@ body {
   display: none;
 }
 
-/* The active dot in ProjectNav gets a slow, quiet "breathing" pulse so the
-   navigator reads as alive rather than static. */
-@keyframes nav-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.35);
-    opacity: 0.6;
-  }
-}

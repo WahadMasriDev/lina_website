@@ -4,6 +4,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Reveal from "../../components/Reveal";
 import ProjectVideo from "../../components/ProjectVideo";
+import VideoCarousel from "../../components/VideoCarousel";
 
 // Real Cheval Blanc assets found in web/assets/CHEVAL BLANC/. Only 6
 // usable stills exist there today (plus the 2 campaign videos below), so
@@ -11,6 +12,17 @@ import ProjectVideo from "../../components/ProjectVideo";
 // match every placeholder slot in the Figma mock. Swap/add images as more
 // real assets come in -- see web/assets/CHEVAL BLANC/.
 const IMG = "/images/cheval-blanc";
+
+// The seasonal campaign videos, in the exact order Nezar specified --
+// matches Figma's CAROUSEL component (node 303:318) card-for-card.
+const CAROUSEL_VIDEOS = [
+  "/videos/cheval-blanc-carousel/1-birthday.mp4",
+  "/videos/cheval-blanc-carousel/2-earth-day.mp4",
+  "/videos/cheval-blanc-carousel/3-valentines.mp4",
+  "/videos/cheval-blanc-carousel/4-moon-festival.mp4",
+  "/videos/cheval-blanc-carousel/5-easter.mp4",
+  "/videos/cheval-blanc-carousel/6-cny.mp4",
+] as const;
 
 export default function ChevalBlancPage() {
   return (
@@ -56,8 +68,14 @@ export default function ChevalBlancPage() {
           <ProjectVideo src="/videos/cheval-blanc-2.mp4" />
         </Reveal>
 
-        {/* Big wide shot */}
+        {/* Seasonal campaign carousel -- 6 vertical videos, draggable,
+            matching Figma's CAROUSEL component (303:318). */}
         <Reveal index={3}>
+          <VideoCarousel videos={CAROUSEL_VIDEOS} />
+        </Reveal>
+
+        {/* Big wide shot */}
+        <Reveal index={4}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`${IMG}/cards-marble.jpg`}
@@ -67,7 +85,7 @@ export default function ChevalBlancPage() {
         </Reveal>
 
         {/* Centered single shot */}
-        <Reveal index={4}>
+        <Reveal index={5}>
           <div className="flex w-full justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -79,7 +97,7 @@ export default function ChevalBlancPage() {
         </Reveal>
 
         {/* Two-up: book pages */}
-        <Reveal index={5}>
+        <Reveal index={6}>
           <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -97,7 +115,7 @@ export default function ChevalBlancPage() {
         </Reveal>
 
         {/* Two-up: card details */}
-        <Reveal index={6}>
+        <Reveal index={7}>
           <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -115,7 +133,7 @@ export default function ChevalBlancPage() {
         </Reveal>
       </div>
 
-      <Reveal index={7} className="w-full">
+      <Reveal index={8} className="w-full">
         <Footer />
       </Reveal>
     </div>

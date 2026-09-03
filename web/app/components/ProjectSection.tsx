@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useAppReady } from "./AppReady";
 
 type ProjectSectionProps = {
   image: string;
@@ -25,22 +26,11 @@ const MONTAGE_INTERVAL_MS = 1400;
 const MONTAGE_CROSSFADE_MS = 650;
 const MEDIA_FADE_MS = 1500;
 
-// Reveal choreography, per review feedback: the old version was a whole
-// intro sequence (card dims, title fades in centered and scaled up over
-// the image, sweeps bold word-by-word, then glides down into its resting
-// corner). That's gone -- "remove it all together" -- replaced with
-// something much simpler: the hero image alone is visible the instant a
-// section arrives, and the title/subtitle just fade in, in place, at their
-// normal resting position, a beat later. No scaling, no centering, no
-// word-sweep.
-const TEXT_REVEAL_DELAY_MS = 500;
-const TEXT_FADE_MS = 500;
-
-// A beat of stillness before the video/photo carousel starts, every time
-// a section becomes the active one. Without this, media would start the
-// instant you arrive; this holds it back so there's always a still moment
-// first.
-const MEDIA_START_DELAY_MS = 1000;
+// Per the latest direction: no animation on the text at all -- title and
+// subtitle are just always there at full opacity, same as the rest of the
+// (now un-animated) landing page. Media still only starts once a section
+// is actually the one on screen -- see `active` below -- but without any
+// artificial delay stacked on top of that.
 
 // Once the video plays through to the end, it fades back to the static
 // thumbnail, holds there for a beat, then fades back in and replays from
@@ -105,12 +95,18 @@ export default function ProjectSection({
   const replayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
 
-  // Whether the section is currently the one on screen. Text fades in a
-  // beat after arriving, and fades back out (resetting) the moment you
-  // scroll away, so it plays again fresh every time you come back --
-  // there's no "only once" tracking any more, it's simple and repeatable.
+  // Whether the section is currently the one on screen -- drives the
+  // video/photo carousel starting and stopping. Text is no longer gated
+  // on this at all; it's always visible.
   const [inView, setInView] = useState(false);
-  const [textVisible, setTextVisible] = useState(false);
+  // The loading screen covers the whole page while it's up, but the page
+  // underneath is already mounted and running -- without this, a section
+  // that's on screen at load starts playing its video the instant it
+  // mounts, so by the time the loading screen actually lifts it's already
+  // seconds into playing instead of at a clean start. Holding it on
+  // `ready` means arriving after the loading screen feels exactly like
+  // arriving fresh, same as scrolling into a section later.
+  const ready = useAppReady();
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -126,33 +122,12 @@ export default function ProjectSection({
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (!inView) {
-      setTextVisible(false);
-      return;
-    }
-    const id = setTimeout(() => setTextVisible(true), TEXT_REVEAL_DELAY_MS);
-    return () => clearTimeout(id);
-  }, [inView]);
+  const descriptionVisible = true;
 
-  const descriptionVisible = textVisible;
-
-  // Once the section is on screen and its text has faded in, the card's
-  // video/photo carousel or "coming soon" starts playing on its own -- no
-  // hover needed, and it stops the moment you scroll away. A short
-  // MEDIA_START_DELAY_MS beat holds it back on every arrival so there's
-  // always a still moment before anything starts moving.
-  const [mediaReady, setMediaReady] = useState(false);
-  useEffect(() => {
-    if (!(inView && textVisible)) {
-      setMediaReady(false);
-      return;
-    }
-    const id = setTimeout(() => setMediaReady(true), MEDIA_START_DELAY_MS);
-    return () => clearTimeout(id);
-  }, [inView, textVisible]);
-
-  const active = mediaReady;
+  // Once the section is the one on screen, its video/photo carousel (or
+  // "coming soon") starts playing on its own -- no hover needed -- and
+  // stops the moment you scroll away.
+  const active = inView && ready;
 
   const montage = images && images.length > 0 ? images : null;
 
@@ -358,18 +333,9 @@ export default function ProjectSection({
           paddingBottom: TEXT_INSET_BOTTOM,
         }}
       >
-        {/* Sits at its resting position at all times -- only opacity
-            animates, fading in TEXT_REVEAL_DELAY_MS after the section
-            arrives on screen. No scale, no centering, no word-by-word
-            bold sweep. */}
-        <div
-          style={{
-            opacity: textVisible ? 1 : 0,
-            transitionProperty: "opacity",
-            transitionDuration: `${TEXT_FADE_MS}ms`,
-            transitionTimingFunction: "ease-out",
-          }}
-        >
+        {/* Always visible, no fade -- per the latest direction, text on
+            the landing page doesn't animate at all. */}
+        <div>
           {/* Figma: 'Inter', 33.256px / 40px line-height, -2px top+bottom
               margin -- "THIS IS " is regular (400), the project name is
               bold (700). No width constraint -- the box hugs the text
