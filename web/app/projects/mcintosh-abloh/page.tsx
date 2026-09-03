@@ -105,7 +105,7 @@ export default function McIntoshAblohPage() {
         </div>
       </Reveal>
 
-      <Reveal index={2} className="w-full px-4 pb-[31px] sm:px-8">
+      <Reveal index={2} className="w-full pb-[31px]">
         <Footer />
       </Reveal>
     </div>

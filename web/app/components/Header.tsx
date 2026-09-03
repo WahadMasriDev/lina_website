@@ -21,7 +21,7 @@ import { PROJECT_LINKS } from "../data/projects";
 // squeezed into a box smaller than itself. Keeping the wrapper's size
 // fixed means hovering never triggers a resize at all, only the opacity
 // swap -- the icon just sits left-aligned inside the larger box.
-const LOGO_HEIGHT = 56; // px -- tweak directly if it looks off against Figma
+const LOGO_HEIGHT = 39; // px -- ~30% smaller than Figma's 56px, per Nezar's direction
 // Both files' own viewBoxes are the same 43px-tall crop now (updated by
 // Nezar so the icon mark reads at the same visual size standalone and
 // inside the full lockup), so rendering both at the same CSS height
@@ -159,7 +159,7 @@ export default function Header({
         <Link> since "/" is a real, always-present route.
       */}
       <nav
-        className={`relative hidden md:flex w-[360px] items-center justify-between text-[15px] leading-[18px] font-light ${
+        className={`relative hidden md:flex w-[360px] items-center justify-between text-[14px] leading-[17px] font-light ${
           light ? "text-black" : "text-white"
         }`}
       >

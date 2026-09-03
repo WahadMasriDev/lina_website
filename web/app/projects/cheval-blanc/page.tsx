@@ -150,7 +150,7 @@ export default function ChevalBlancPage() {
         </div>
       </Reveal>
 
-      <Reveal index={3} className="w-full px-4 pb-[31px] sm:px-8">
+      <Reveal index={3} className="w-full pb-[31px]">
         <Footer />
       </Reveal>
     </div>

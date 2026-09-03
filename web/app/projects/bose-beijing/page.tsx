@@ -141,7 +141,7 @@ export default function BoseBeijingPage() {
         </div>
       </Reveal>
 
-      <Reveal index={5} className="w-full px-4 pb-[31px] sm:px-8">
+      <Reveal index={5} className="w-full pb-[31px]">
         <FooterLight />
       </Reveal>
     </div>

@@ -114,8 +114,8 @@ export default function ContactSection({ images = [] }: ContactSectionProps) {
             transitionTimingFunction: "cubic-bezier(.16,1,.3,1)",
           }}
         >
-          <h2 className="text-[40px] font-light uppercase leading-[1.05] tracking-[0.02em] text-white sm:text-[56px] md:text-[72px]">
-            Travaillons ensemble ?
+          <h2 className="text-[40px] font-bold uppercase leading-[1.05] tracking-[0.02em] text-white sm:text-[56px] md:text-[72px]">
+            Travaillons ensemble
           </h2>
 
           <div className="mx-auto mt-8 h-px w-16 bg-white/30" />

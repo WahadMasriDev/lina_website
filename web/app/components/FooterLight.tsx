@@ -15,39 +15,39 @@ import {
 // so every other project page's dark footer is untouched.
 export default function FooterLight() {
   return (
-    <footer className="flex w-full flex-col items-stretch gap-6 px-4 py-10 sm:gap-[23px] sm:px-8">
+    <footer className="flex w-full flex-col items-stretch gap-6 px-4 py-10 sm:gap-[23px] sm:px-8 lg:px-[95px]">
       <div className="flex items-center justify-between">
-        <h2 className="text-[20px] font-bold leading-6 text-black">
+        <h2 className="text-[19px] font-bold leading-[23px] text-black">
           CONTACTEZ MOI
         </h2>
       </div>
 
       <div className="flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
         <div className="max-w-[737px]">
-          <div className="h-[2px] w-8 bg-black" />
-          <p className="mt-4 max-w-[400px] text-[15px] leading-[18px] text-black/70">
+          <div className="h-[2px] w-[30px] bg-black" />
+          <p className="mt-4 max-w-[400px] text-[14px] leading-[17px] text-black/70">
             Je suis à votre disposition pour toute information du lundi au
             samedi, de 10h00 à 19h00.
           </p>
 
-          <div className="mt-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-[77px]">
+          <div className="mt-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-[73px]">
             <a
               href="mailto:lina.zakariaa@gmail.com"
-              className="flex items-center gap-2 text-[14px] leading-[17px] text-black hover:opacity-70"
+              className="flex items-center gap-2 text-[13px] leading-[16px] text-black hover:opacity-70"
             >
               <MailIcon />
               lina.zakariaa@gmail.com
             </a>
             <a
               href="tel:+33975181509"
-              className="flex items-center gap-2 text-[14px] leading-[17px] text-black hover:opacity-70"
+              className="flex items-center gap-2 text-[13px] leading-[16px] text-black hover:opacity-70"
             >
               <PhoneIcon />
               +33 9 75 18 15 09
             </a>
             <a
               href="https://wa.me/33975181509"
-              className="flex items-center gap-2 text-[14px] leading-[17px] text-black/70 hover:opacity-70"
+              className="flex items-center gap-2 text-[13px] leading-[16px] text-black/70 hover:opacity-70"
             >
               <WhatsAppIcon />
               WhatsApp — +33 9 75 18 15 09
@@ -56,10 +56,10 @@ export default function FooterLight() {
         </div>
 
         <div className="flex flex-col items-start gap-[13px]">
-          <p className="text-[12px] leading-[15px] tracking-wide text-black/60">
+          <p className="text-[11px] leading-[14px] tracking-wide text-black/60">
             SUIVEZ-MOI
           </p>
-          <div className="flex items-center gap-[19px]">
+          <div className="flex items-center gap-[18px]">
             <a
               href="https://www.linkedin.com/in/lina-zakaria/"
               target="_blank"
@@ -94,31 +94,31 @@ export default function FooterLight() {
       <div className="h-px w-full bg-black/10" />
 
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-[13px] leading-4 text-black/60">
+        <p className="text-[12px] leading-[15px] text-black/60">
           © Lina Zakaria — Tous droits réservés
         </p>
         <nav className="flex flex-wrap items-center gap-x-8 gap-y-2">
           <Link
             href="/"
-            className="text-[13px] uppercase leading-4 text-black hover:opacity-70"
+            className="text-[12px] uppercase leading-[15px] text-black hover:opacity-70"
           >
             Work
           </Link>
           <a
             href="/404"
-            className="text-[13px] uppercase leading-4 text-black hover:opacity-70"
+            className="text-[12px] uppercase leading-[15px] text-black hover:opacity-70"
           >
             Personal Playground
           </a>
           <Link
             href="/about"
-            className="text-[13px] uppercase leading-4 text-black hover:opacity-70"
+            className="text-[12px] uppercase leading-[15px] text-black hover:opacity-70"
           >
             About
           </Link>
           <Link
             href="/#contact"
-            className="text-[13px] uppercase leading-4 text-black hover:opacity-70"
+            className="text-[12px] uppercase leading-[15px] text-black hover:opacity-70"
           >
             Contact
           </Link>
