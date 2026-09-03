@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { useAppReady } from "./AppReady";
 
 type ProjectSectionProps = {
   image: string;
@@ -28,9 +27,8 @@ const MEDIA_FADE_MS = 1500;
 
 // Per the latest direction: no animation on the text at all -- title and
 // subtitle are just always there at full opacity, same as the rest of the
-// (now un-animated) landing page. Media still only starts once a section
-// is actually the one on screen -- see `active` below -- but without any
-// artificial delay stacked on top of that.
+// (now un-animated) landing page. The video/photo carousel now plays on
+// hover instead -- see `active` below.
 
 // Once the video plays through to the end, it fades back to the static
 // thumbnail, holds there for a beat, then fades back in and replays from
@@ -93,41 +91,16 @@ export default function ProjectSection({
   const [videoPhase, setVideoPhase] = useState<"video" | "thumbnail">("video");
   const videoRef = useRef<HTMLVideoElement>(null);
   const replayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const sectionRef = useRef<HTMLElement | null>(null);
 
-  // Whether the section is currently the one on screen -- drives the
-  // video/photo carousel starting and stopping. Text is no longer gated
-  // on this at all; it's always visible.
-  const [inView, setInView] = useState(false);
-  // The loading screen covers the whole page while it's up, but the page
-  // underneath is already mounted and running -- without this, a section
-  // that's on screen at load starts playing its video the instant it
-  // mounts, so by the time the loading screen actually lifts it's already
-  // seconds into playing instead of at a clean start. Holding it on
-  // `ready` means arriving after the loading screen feels exactly like
-  // arriving fresh, same as scrolling into a section later.
-  const ready = useAppReady();
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      // High threshold: only counts as "arrived" once a section has
-      // essentially fully taken over the screen.
-      { threshold: 0.97 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
+  // Per the latest direction: the hero video/photo carousel plays on
+  // hover, not automatically once scrolled into view. A hover can't
+  // happen until the loading screen (which sits on top and captures
+  // every pointer event while it's up) is gone, so there's no need to
+  // also gate this on the app-ready signal the way the old
+  // scroll-to-activate version did.
+  const [hovered, setHovered] = useState(false);
   const descriptionVisible = true;
-
-  // Once the section is the one on screen, its video/photo carousel (or
-  // "coming soon") starts playing on its own -- no hover needed -- and
-  // stops the moment you scroll away.
-  const active = inView && ready;
+  const active = hovered;
 
   const montage = images && images.length > 0 ? images : null;
 
@@ -239,8 +212,9 @@ export default function ProjectSection({
 
   return (
     <section
-      ref={sectionRef}
       className="relative h-screen w-full shrink-0 overflow-hidden"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <div className="absolute inset-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}

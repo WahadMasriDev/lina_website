@@ -6,15 +6,20 @@ import Reveal from "../../components/Reveal";
 import ProjectVideo from "../../components/ProjectVideo";
 import VideoCarousel from "../../components/VideoCarousel";
 
-// Real Cheval Blanc assets found in web/assets/CHEVAL BLANC/. Only 6
-// usable stills exist there today (plus the 2 campaign videos below), so
-// this sequence uses everything that's real rather than padding out to
-// match every placeholder slot in the Figma mock. Swap/add images as more
-// real assets come in -- see web/assets/CHEVAL BLANC/.
+// Rebuilt against the "ready for dev" Figma frame (node 313:211), which
+// supersedes the earlier draft this page was built from. Real structural
+// differences from before:
+//  - The hero is full-bleed (no side padding), with the header composited
+//    directly on top of the video instead of sitting in its own padded
+//    row above it.
+//  - There's a real case-study paragraph next to the title now (below),
+//    which didn't exist in the earlier draft.
+//  - The carousel sits directly under that intro row -- the old separate
+//    "video 1 / video 2" blocks aren't part of this design at all.
+//  - The closing image sequence is a specific 4-photo collage plus two
+//    full-width shots, not a generic two-up grid.
 const IMG = "/images/cheval-blanc";
 
-// The seasonal campaign videos, in the exact order Nezar specified --
-// matches Figma's CAROUSEL component (node 303:318) card-for-card.
 const CAROUSEL_VIDEOS = [
   "/videos/cheval-blanc-carousel/1-birthday.mp4",
   "/videos/cheval-blanc-carousel/2-earth-day.mp4",
@@ -26,114 +31,125 @@ const CAROUSEL_VIDEOS = [
 
 export default function ChevalBlancPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center gap-5 bg-black px-4 pt-[31px] pb-[31px] sm:px-8">
-      <Header />
+    <div className="flex min-h-screen flex-col items-center gap-[70px] bg-black">
+      {/* Hero -- full-bleed, header composited on top rather than sitting
+          above it. Header renders in its normal (non-overlay) mode --
+          this wrapper is what handles positioning it over the video --
+          so it scrolls away with the rest of the page like every other
+          project detail page, it just starts out layered on the video. */}
+      <ProjectVideo
+        src="/videos/cheval-blanc.mp4"
+        pressAnimation
+        aspectClassName="aspect-[1920/1080]"
+        overlay={
+          <div className="absolute inset-x-0 top-0 z-10 px-4 sm:px-8">
+            <Header />
+          </div>
+        }
+      />
 
-      <div className="flex w-full flex-col gap-5">
-        {/* Hero */}
-        <Reveal index={0}>
-          <section className="relative w-full aspect-[1864/978] overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/cheval-blanc.png"
-              alt="Cheval Blanc"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <div
-              aria-hidden
-              className="absolute inset-x-0 bottom-0 h-2/3 mix-blend-multiply"
-              style={{
-                background:
-                  "linear-gradient(to top, rgba(10,10,12,0.85) 0%, rgba(10,10,12,0.55) 45%, transparent 100%)",
-              }}
-            />
-            <div className="absolute inset-x-0 bottom-10 px-4 text-white sm:bottom-16 sm:px-8 md:bottom-20">
-              <p className="text-xl font-normal sm:text-2xl md:text-[33.256px] md:leading-[40px]">
-                THIS IS <span className="font-bold">CHEVAL BLANC</span>
-              </p>
-              <p className="mt-2 whitespace-nowrap text-base font-normal leading-normal text-white/90 md:text-[24px] md:leading-[29px]">
-                Hotel de luxe à la samaritaine, LVMH
-              </p>
-            </div>
-          </section>
-        </Reveal>
+      {/* Title + real case-study copy, side by side. */}
+      <Reveal index={0} className="w-full px-4 sm:px-8 lg:px-[95px]">
+        <div className="flex w-full flex-col gap-8 text-white lg:flex-row lg:items-start lg:justify-between lg:gap-16">
+          <div className="shrink-0">
+            <p className="text-2xl font-normal leading-normal">
+              THIS IS <span className="font-bold">CHEVAL BLANC</span>
+            </p>
+            <p className="mt-1 text-lg font-normal leading-normal text-white/90">
+              Hotel de luxe à la samaritaine, LVMH
+            </p>
+          </div>
+          <div className="max-w-[695px] text-base font-normal leading-normal text-white/90">
+            <p>
+              Dans le cadre d&rsquo;un pitch réunissant plusieurs agences,
+              Cheval Blanc nous a invités à imaginer une direction créative
+              autour du thème du rêve. J&rsquo;ai proposé une direction
+              artistique inspirée des constellations, que j&rsquo;ai ensuite
+              développée et explorée en 3D.
+            </p>
+            <p className="mt-4">
+              Cette proposition a été particulièrement appréciée et nous a
+              permis de remporter le pitch.
+            </p>
+            <p className="mt-4">
+              À la suite de cette première campagne, ReflexGroup s&rsquo;est
+              vu confier les différentes prises de parole de Cheval Blanc
+              tout au long de l&rsquo;année: Ramadan, Journée internationale
+              des femmes, Earth Day, entre autres&nbsp;; pour lesquelles
+              j&rsquo;ai participé à la conception et réalisé seule les
+              univers et animations 3D.
+            </p>
+          </div>
+        </div>
+      </Reveal>
 
-        {/* Video 1 -- the one with the press animation */}
-        <Reveal index={1}>
-          <ProjectVideo src="/videos/cheval-blanc.mp4" pressAnimation />
-        </Reveal>
+      {/* Seasonal campaign carousel -- full-bleed, draggable, matching
+          Figma's Cards group (313:294) card-for-card. */}
+      <Reveal index={1} className="w-full">
+        <VideoCarousel videos={CAROUSEL_VIDEOS} />
+      </Reveal>
 
-        {/* Video 2 */}
-        <Reveal index={2}>
-          <ProjectVideo src="/videos/cheval-blanc-2.mp4" />
-        </Reveal>
-
-        {/* Seasonal campaign carousel -- 6 vertical videos, draggable,
-            matching Figma's CAROUSEL component (303:318). */}
-        <Reveal index={3}>
-          <VideoCarousel videos={CAROUSEL_VIDEOS} />
-        </Reveal>
-
-        {/* Big wide shot */}
-        <Reveal index={4}>
+      {/* Closing sequence: full-width shot, a 4-photo collage, another
+          full-width shot -- matches Figma's "Vertical group" (313:215). */}
+      <Reveal index={2} className="w-full px-4 sm:px-8 lg:px-[95px]">
+        <div className="flex w-full flex-col items-center gap-11">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`${IMG}/cards-marble.jpg`}
             alt="Cheval Blanc printed cards on marble"
             className="w-full object-cover"
           />
-        </Reveal>
 
-        {/* Centered single shot */}
-        <Reveal index={5}>
-          <div className="flex w-full justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`${IMG}/card-spiral.jpg`}
-              alt="Cheval Blanc card detail"
-              className="w-full max-w-md object-cover sm:max-w-lg"
-            />
+          {/* The collage: one portrait shot offset right, two stacked
+              shots further right, and a big block anchoring the bottom
+              left -- an approximation of Figma's specific asymmetric
+              layout using a responsive grid rather than literal
+              absolute coordinates. */}
+          <div className="grid w-full grid-cols-12 gap-5">
+            <div className="col-span-12 sm:col-span-5 sm:col-start-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${IMG}/card-spiral.jpg`}
+                alt="Cheval Blanc card detail"
+                className="w-full object-cover"
+              />
+            </div>
+            <div className="col-span-12 sm:col-span-4 sm:col-start-9 sm:mt-10">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${IMG}/book-open-1.jpg`}
+                alt="Cheval Blanc booklet, open"
+                className="w-full object-cover"
+              />
+            </div>
+            <div className="col-span-12 sm:col-span-7">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${IMG}/cards-trio.jpg`}
+                alt="Cheval Blanc printed cards, trio"
+                className="w-full object-cover"
+              />
+            </div>
+            <div className="col-span-12 sm:col-span-4 sm:col-start-9">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${IMG}/book-open-2.jpg`}
+                alt="Cheval Blanc booklet, open"
+                className="w-full object-cover"
+              />
+            </div>
           </div>
-        </Reveal>
 
-        {/* Two-up: book pages */}
-        <Reveal index={6}>
-          <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`${IMG}/book-open-1.jpg`}
-              alt="Cheval Blanc booklet, open"
-              className="w-full object-cover"
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`${IMG}/book-open-2.jpg`}
-              alt="Cheval Blanc booklet, open"
-              className="w-full object-cover"
-            />
-          </div>
-        </Reveal>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${IMG}/cards-corner.jpg`}
+            alt="Cheval Blanc printed cards, detail"
+            className="w-full object-cover"
+          />
+        </div>
+      </Reveal>
 
-        {/* Two-up: card details */}
-        <Reveal index={7}>
-          <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`${IMG}/cards-trio.jpg`}
-              alt="Cheval Blanc printed cards, trio"
-              className="w-full object-cover"
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`${IMG}/cards-corner.jpg`}
-              alt="Cheval Blanc printed cards, detail"
-              className="w-full object-cover"
-            />
-          </div>
-        </Reveal>
-      </div>
-
-      <Reveal index={8} className="w-full">
+      <Reveal index={3} className="w-full px-4 pb-[31px] sm:px-8">
         <Footer />
       </Reveal>
     </div>
