@@ -93,13 +93,13 @@ export default function McIntoshAblohPage() {
             <img
               src={`${IMG}/mcintosh-abloh-pedestal.jpg`}
               alt="McIntosh x Virgil Abloh, prototype on display"
-              className="aspect-[836/952] w-full flex-1 object-cover"
+              className="aspect-[2/3] w-full min-w-0 flex-1 object-cover"
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`${IMG}/mcintosh-abloh-orange.jpg`}
               alt="McIntosh x Virgil Abloh, exhibition graphics"
-              className="aspect-[834/952] w-full flex-1 object-cover"
+              className="aspect-[2/3] w-full min-w-0 flex-1 object-cover"
             />
           </div>
         </div>
