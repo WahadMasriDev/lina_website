@@ -4,147 +4,111 @@ import { useEffect, useRef, useState } from "react";
 import { useAppReady } from "./AppReady";
 
 type VideoCarouselProps = {
-  /** In display order -- matches the Figma CAROUSEL component (node
-   * 303:318) ordering, per Nezar's explicit ordering. */
+  /** In display order, left to right -- matches the Figma CAROUSEL
+   * component (node 303:318) exactly, per Nezar's explicit ordering. */
   videos: readonly string[];
 };
 
-const AUTOPLAY_MS = 5500;
-const DRAG_THRESHOLD_PX = 60;
-const SLIDE_TRANSITION_MS = 700;
+// Figma's CAROUSEL component (node 303:318): a horizontal row of portrait
+// video cards, 595:1058 (~0.562 aspect, same as a 1080x1920 vertical
+// video), 25px apart. Nezar asked for it to be draggable -- "i can drag
+// them to make them move" -- so this is a plain horizontal scroller
+// (native touch/trackpad scroll works out of the box) with mouse-drag
+// added on top for desktop, rather than a scripted auto-advancing
+// carousel with prev/next arrows.
+const CARD_GAP_PX = 25;
+const CARD_ASPECT = 595 / 1058;
 
-/**
- * Full-bleed, one-video-at-a-time carousel -- the same effect as the
- * image Carousel used on the PSG page (autoplay on an interval, pointer
- * drag/swipe to advance, dot indicators), adapted for video. The page
- * background is already black, so each portrait clip is shown in full
- * with object-contain rather than cropped to a wide frame -- any
- * letterboxing on the sides is invisible against the black page.
- */
 export default function VideoCarousel({ videos }: VideoCarouselProps) {
-  const count = videos.length;
-  const [index, setIndex] = useState(0);
-  const [dragPx, setDragPx] = useState(0);
-  const [dragging, setDragging] = useState(false);
+  const trackRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
   const startXRef = useRef(0);
-  const widthRef = useRef(1);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const startScrollRef = useRef(0);
+  const movedRef = useRef(false);
+  const [grabbing, setGrabbing] = useState(false);
   const ready = useAppReady();
 
-  // Only the active slide actually plays -- the rest stay paused (and
-  // unloaded via preload="none") so six clips aren't all decoding at
-  // once. Same gating as everywhere else `ready` guards playback: these
-  // mount underneath the loading screen before it lifts.
+  // Every card plays on loop, muted, as soon as the loading screen has
+  // actually finished -- same reasoning as everywhere else `ready` gates
+  // playback: these are mounted (and would otherwise start) underneath
+  // the covering loading screen well before it lifts.
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   useEffect(() => {
     if (!ready) return;
-    videoRefs.current.forEach((v, i) => {
-      if (!v) return;
-      if (i === index) {
-        v.currentTime = 0;
-        v.play().catch(() => {});
-      } else {
-        v.pause();
-      }
-    });
-  }, [index, ready]);
+    videoRefs.current.forEach((v) => v?.play().catch(() => {}));
+  }, [ready]);
 
-  useEffect(() => {
-    if (count <= 1) return;
-    const id = setInterval(() => {
-      if (draggingRef.current) return;
-      setIndex((i) => (i + 1) % count);
-    }, AUTOPLAY_MS);
-    return () => clearInterval(id);
-  }, [count]);
-
-  if (count === 0) return null;
-
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (count <= 1) return;
+  const onPointerDown = (e: React.PointerEvent) => {
+    const track = trackRef.current;
+    if (!track) return;
     draggingRef.current = true;
-    setDragging(true);
+    movedRef.current = false;
     startXRef.current = e.clientX;
-    widthRef.current = containerRef.current?.clientWidth || 1;
-    e.currentTarget.setPointerCapture(e.pointerId);
+    startScrollRef.current = track.scrollLeft;
+    track.setPointerCapture(e.pointerId);
+    setGrabbing(true);
   };
 
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+  const onPointerMove = (e: React.PointerEvent) => {
     if (!draggingRef.current) return;
-    setDragPx(e.clientX - startXRef.current);
+    const track = trackRef.current;
+    if (!track) return;
+    const delta = e.clientX - startXRef.current;
+    if (Math.abs(delta) > 3) movedRef.current = true;
+    track.scrollLeft = startScrollRef.current - delta;
   };
 
-  const endDrag = () => {
+  const endDrag = (e: React.PointerEvent) => {
     if (!draggingRef.current) return;
     draggingRef.current = false;
-    setDragging(false);
-    if (dragPx <= -DRAG_THRESHOLD_PX) {
-      setIndex((i) => (i + 1) % count);
-    } else if (dragPx >= DRAG_THRESHOLD_PX) {
-      setIndex((i) => (i - 1 + count) % count);
-    }
-    setDragPx(0);
+    setGrabbing(false);
+    trackRef.current?.releasePointerCapture(e.pointerId);
   };
 
-  const dragPercent = (dragPx / widthRef.current) * 100;
-  const translatePercent = -(index * 100) + dragPercent;
+  // Dragging shouldn't also register as a click on the video underneath.
+  const onClickCapture = (e: React.MouseEvent) => {
+    if (movedRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
 
   return (
     <div
-      ref={containerRef}
-      className="relative h-[70vh] w-full select-none overflow-hidden bg-black sm:h-[80vh]"
+      ref={trackRef}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerLeave={endDrag}
+      onClickCapture={onClickCapture}
+      className={`no-scrollbar flex w-full select-none overflow-x-auto ${
+        grabbing ? "cursor-grabbing" : "cursor-grab"
+      }`}
+      style={{ gap: `${CARD_GAP_PX}px` }}
     >
-      <div
-        className="flex h-full touch-pan-y"
-        style={{
-          transform: `translateX(${translatePercent}%)`,
-          transition: dragging
-            ? "none"
-            : `transform ${SLIDE_TRANSITION_MS}ms cubic-bezier(.16,1,.3,1)`,
-        }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerLeave={endDrag}
-        onPointerCancel={endDrag}
-      >
-        {videos.map((src, i) => (
-          <div
-            key={src}
-            className="flex h-full w-full flex-shrink-0 items-center justify-center"
-          >
-            <video
-              ref={(el) => {
-                videoRefs.current[i] = el;
-              }}
-              src={src}
-              muted
-              loop
-              playsInline
-              preload={i === index ? "auto" : "none"}
-              draggable={false}
-              className="h-full w-full object-contain"
-            />
-          </div>
-        ))}
-      </div>
-
-      {count > 1 && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-4 flex items-center justify-center gap-2">
-          {videos.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              aria-label={`Go to slide ${i + 1}`}
-              onClick={() => setIndex(i)}
-              className={`pointer-events-auto h-1.5 rounded-full transition-all duration-300 ${
-                i === index ? "w-6 bg-white" : "w-1.5 bg-white/40"
-              }`}
-            />
-          ))}
+      {videos.map((src, i) => (
+        <div
+          key={src}
+          className="relative shrink-0"
+          style={{
+            width: `min(70vw, ${1058 * CARD_ASPECT}px)`,
+            aspectRatio: `${CARD_ASPECT}`,
+          }}
+        >
+          <video
+            ref={(el) => {
+              videoRefs.current[i] = el;
+            }}
+            src={src}
+            muted
+            loop
+            playsInline
+            preload="none"
+            draggable={false}
+            className="pointer-events-none h-full w-full rounded-sm object-cover"
+          />
         </div>
-      )}
+      ))}
     </div>
   );
 }
