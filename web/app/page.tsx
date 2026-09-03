@@ -59,13 +59,21 @@ const projects = [
 // same padding as everything else, and scrolls away normally instead of
 // staying pinned. Spacing matches Figma exactly: 31px of black padding
 // around the whole page, 20px between every stacked block -- the same
-// convention the Cheval Blanc detail page already uses. The side margins
-// now also pick up the same `lg:px-[95px]` step every project detail
-// page uses at large screens, per Nezar's feedback that the landing
-// page's own margins needed to match.
+// convention the Cheval Blanc detail page already uses.
+//
+// Deliberately stays at px-4/sm:px-8 only, with no `lg:px-[95px]` step --
+// that was tried once (per Nezar's "margins need to match the other
+// pages" feedback) but it double-stacked with the px-4/sm:px-8 padding
+// already built into Header, ProjectSection's own title/explore-more
+// row, and ContactSection, pushing the header and content noticeably
+// further in on the landing page than on every detail page's own header
+// (which also just uses px-4/sm:px-8, never the lg step -- only each
+// detail page's *body* content picks up lg:px-[95px], not its header).
+// Leaving the single px-4/sm:px-8 layer here is what actually keeps the
+// landing header flush with every other page's header.
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col items-center gap-5 bg-black px-4 pt-[31px] pb-[31px] sm:px-8 lg:px-[95px]">
+    <div className="flex min-h-screen flex-col items-center gap-5 bg-black px-4 pt-[31px] pb-[31px] sm:px-8">
       <Header />
 
       <div className="flex w-full flex-col gap-5">
