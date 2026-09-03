@@ -1,0 +1,173 @@
+"use client";
+
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import Reveal from "../../components/Reveal";
+import Carousel from "../../components/Carousel";
+
+// Built against the "ready for dev" Figma frame (node 313:1411, "5TH
+// PAGE") -- the standard dark treatment every other project page but
+// SolCotton uses (bg-black, white text), confirmed via get_design_context.
+// Structure: full-bleed hero photo with the header composited on top, an
+// intro row (title + case-study copy -- no "Read more" any more, per
+// Nezar's direction to remove that affordance everywhere on the site), a
+// full-bleed, full-size autoplaying carousel (swipe/drag also works)
+// cycling through the interior renders one at a time -- per Nezar's
+// feedback this section is a carousel in the real design, not the static
+// two-up row Figma's flat export first suggested -- then the same "Image
+// Collection" shape SolCotton uses: one full-width shot, a row of four
+// narrower photos, a pair of two, a final full-width shot, and the shared
+// footer.
+//
+// Hero photo and the carousel's third slide were swapped in for the two
+// real renders Nezar sent directly (not from Figma): the "La Maison
+// Shanghai" storefront exterior as the new hero, and an interior retail
+// display shot added to the carousel alongside the two existing interior
+// renders.
+const IMG = "/images";
+
+export default function PsgMaisonShanghaiPage() {
+  return (
+    <div className="flex min-h-screen flex-col items-center gap-[70px] bg-black">
+      {/* Hero -- full-bleed, header composited on top, same treatment as
+          Cheval Blanc/SolCotton's hero. Swapped to the real "La Maison
+          Shanghai" storefront exterior Nezar sent, replacing the earlier
+          Figma-export interior shot. */}
+      <div className="relative w-full aspect-[965/512] overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`${IMG}/psg-storefront-hero.jpg`}
+          alt="PSG x La Maison Shanghai, storefront"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-x-0 top-0 z-10 px-4 sm:px-8">
+          <Header />
+        </div>
+      </div>
+
+      {/* Title + case-study copy, side by side -- same layout SolCotton's
+          intro row uses. */}
+      <Reveal index={0} className="w-full px-4 sm:px-8 lg:px-[95px]">
+        <div className="flex w-full flex-col gap-8 text-white lg:flex-row lg:items-start lg:justify-between lg:gap-16">
+          <div className="shrink-0">
+            <p className="text-2xl font-normal leading-normal">
+              THIS IS{" "}
+              <span className="font-bold">PSG X LA MAISON SHANGHAI</span>
+            </p>
+            <p className="mt-1 text-lg font-normal leading-normal text-white/90">
+              International activation &amp; interior design
+            </p>
+          </div>
+          <div className="max-w-[647px] text-base font-normal leading-normal text-white/90 text-justify">
+            <p>
+              ICI C&rsquo;EST PARIS — Imaginée par le Paris Saint-Germain,
+              cette activation internationale crée un dialogue entre
+              l&rsquo;identité architecturale du Parc des Princes et
+              l&rsquo;énergie urbaine de Shanghai, à travers un lieu mêlant
+              sport, art, musique, mode et gastronomie. Réalisé en seulement
+              une semaine, le projet m&rsquo;a amenée à prendre en charge
+              l&rsquo;intégralité de la production 3D&nbsp;: modélisation du
+              lieu, conception des volumes, façades et aménagements. Aux
+              côtés d&rsquo;Arnaud Faverjon, j&rsquo;ai traduit le concept
+              créatif dans l&rsquo;espace afin de produire des
+              visualisations permettant de présenter, tester et faire
+              valider l&rsquo;expérience par le client.
+            </p>
+          </div>
+        </div>
+      </Reveal>
+
+      {/* Full-bleed, full-size carousel -- one interior render at a time,
+          autoplaying with swipe/drag support, replacing the static
+          side-by-side "Frame 21" pair. Third slide is the real interior
+          retail display shot Nezar sent, added alongside the two
+          existing renders. */}
+      <Reveal index={1} className="w-full">
+        <Carousel
+          images={[
+            {
+              src: `${IMG}/psg-shot-1.jpg`,
+              alt: "PSG x La Maison Shanghai, interior render",
+            },
+            {
+              src: `${IMG}/psg-shot-2.jpg`,
+              alt: "PSG x La Maison Shanghai, interior render",
+            },
+            {
+              src: `${IMG}/psg-interior-display.jpg`,
+              alt: "PSG x La Maison Shanghai, retail display",
+            },
+          ]}
+          className="aspect-[16/9]"
+        />
+      </Reveal>
+
+      {/* Image collection: full-width shot, a row of four narrower photos,
+          a pair of two, a final full-width shot -- matches Figma's "Frame
+          18" (313:1533) image-for-image. */}
+      <Reveal index={2} className="w-full px-4 sm:px-8 lg:px-[95px]">
+        <div className="flex w-full flex-col items-center gap-9">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${IMG}/psg-full-1.jpg`}
+            alt="PSG x La Maison Shanghai, wide interior shot"
+            className="w-full object-cover"
+          />
+
+          <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${IMG}/psg-strip-1.jpg`}
+              alt="PSG x La Maison Shanghai, detail"
+              className="aspect-[397/608] w-full object-cover"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${IMG}/psg-strip-2.jpg`}
+              alt="PSG x La Maison Shanghai, detail"
+              className="aspect-[394/605] w-full object-cover"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${IMG}/psg-strip-3.jpg`}
+              alt="PSG x La Maison Shanghai, detail"
+              className="aspect-[393/607] w-full object-cover"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${IMG}/psg-strip-4.jpg`}
+              alt="PSG x La Maison Shanghai, detail"
+              className="aspect-[398/604] w-full object-cover"
+            />
+          </div>
+
+          <div className="flex w-full flex-col items-center gap-5 sm:flex-row">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${IMG}/psg-pair-1.jpg`}
+              alt="PSG x La Maison Shanghai, interior render"
+              className="aspect-[979.05/784.42] w-full object-cover sm:w-[60.5%]"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${IMG}/psg-pair-2.jpg`}
+              alt="PSG x La Maison Shanghai, on-site photo"
+              className="aspect-[628/784] w-full object-cover sm:w-[38.5%]"
+            />
+          </div>
+
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${IMG}/psg-full-2.jpg`}
+            alt="PSG x La Maison Shanghai, wide interior shot"
+            className="w-full object-cover"
+          />
+        </div>
+      </Reveal>
+
+      <Reveal index={3} className="w-full px-4 pb-[31px] sm:px-8">
+        <Footer />
+      </Reveal>
+    </div>
+  );
+}

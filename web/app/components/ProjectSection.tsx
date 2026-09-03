@@ -25,22 +25,10 @@ const MONTAGE_INTERVAL_MS = 1400;
 const MONTAGE_CROSSFADE_MS = 650;
 const MEDIA_FADE_MS = 1500;
 
-// Reveal choreography, per review feedback: the old version was a whole
-// intro sequence (card dims, title fades in centered and scaled up over
-// the image, sweeps bold word-by-word, then glides down into its resting
-// corner). That's gone -- "remove it all together" -- replaced with
-// something much simpler: the hero image alone is visible the instant a
-// section arrives, and the title/subtitle just fade in, in place, at their
-// normal resting position, a beat later. No scaling, no centering, no
-// word-sweep.
-const TEXT_REVEAL_DELAY_MS = 500;
-const TEXT_FADE_MS = 500;
-
-// A beat of stillness before the video/photo carousel starts, every time
-// a section becomes the active one. Without this, media would start the
-// instant you arrive; this holds it back so there's always a still moment
-// first.
-const MEDIA_START_DELAY_MS = 1000;
+// Per the latest direction: no animation on the text at all -- title and
+// subtitle are just always there at full opacity, same as the rest of the
+// (now un-animated) landing page. The video/photo carousel now plays on
+// hover instead -- see `active` below.
 
 // Once the video plays through to the end, it fades back to the static
 // thumbnail, holds there for a beat, then fades back in and replays from
@@ -103,56 +91,16 @@ export default function ProjectSection({
   const [videoPhase, setVideoPhase] = useState<"video" | "thumbnail">("video");
   const videoRef = useRef<HTMLVideoElement>(null);
   const replayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const sectionRef = useRef<HTMLElement | null>(null);
 
-  // Whether the section is currently the one on screen. Text fades in a
-  // beat after arriving, and fades back out (resetting) the moment you
-  // scroll away, so it plays again fresh every time you come back --
-  // there's no "only once" tracking any more, it's simple and repeatable.
-  const [inView, setInView] = useState(false);
-  const [textVisible, setTextVisible] = useState(false);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      // High threshold: only counts as "arrived" once a section has
-      // essentially fully taken over the screen.
-      { threshold: 0.97 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!inView) {
-      setTextVisible(false);
-      return;
-    }
-    const id = setTimeout(() => setTextVisible(true), TEXT_REVEAL_DELAY_MS);
-    return () => clearTimeout(id);
-  }, [inView]);
-
-  const descriptionVisible = textVisible;
-
-  // Once the section is on screen and its text has faded in, the card's
-  // video/photo carousel or "coming soon" starts playing on its own -- no
-  // hover needed, and it stops the moment you scroll away. A short
-  // MEDIA_START_DELAY_MS beat holds it back on every arrival so there's
-  // always a still moment before anything starts moving.
-  const [mediaReady, setMediaReady] = useState(false);
-  useEffect(() => {
-    if (!(inView && textVisible)) {
-      setMediaReady(false);
-      return;
-    }
-    const id = setTimeout(() => setMediaReady(true), MEDIA_START_DELAY_MS);
-    return () => clearTimeout(id);
-  }, [inView, textVisible]);
-
-  const active = mediaReady;
+  // Per the latest direction: the hero video/photo carousel plays on
+  // hover, not automatically once scrolled into view. A hover can't
+  // happen until the loading screen (which sits on top and captures
+  // every pointer event while it's up) is gone, so there's no need to
+  // also gate this on the app-ready signal the way the old
+  // scroll-to-activate version did.
+  const [hovered, setHovered] = useState(false);
+  const descriptionVisible = true;
+  const active = hovered;
 
   const montage = images && images.length > 0 ? images : null;
 
@@ -259,13 +207,14 @@ export default function ProjectSection({
   // load that correctly hits the static host's 404 handling (our styled
   // not-found.tsx). Finished projects (like Cheval Blanc) link to a real
   // page, so they keep the client-side <Link> transition.
-  const Wrapper = href ? (comingSoon ? "a" : Link) : "div";
-  const wrapperProps = href ? { href } : {};
+  const LinkTag = comingSoon ? "a" : Link;
+  const linkProps = comingSoon ? { href: href ?? "" } : { href: href ?? "" };
 
   return (
     <section
-      ref={sectionRef}
       className="relative h-screen w-full shrink-0 overflow-hidden"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <div className="absolute inset-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -350,26 +299,19 @@ export default function ProjectSection({
         </div>
       )}
 
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      <Wrapper
-        {...(wrapperProps as any)}
+      {/* Plain text row now -- no longer its own link. The whole card is
+          clickable via the full-cover link below instead, per Nezar's
+          feedback ("press on the whole image project ... not only the
+          explore more button"). */}
+      <div
         className="absolute inset-x-0 bottom-0 flex items-center justify-between px-4 text-white sm:px-8"
         style={{
           paddingBottom: TEXT_INSET_BOTTOM,
         }}
       >
-        {/* Sits at its resting position at all times -- only opacity
-            animates, fading in TEXT_REVEAL_DELAY_MS after the section
-            arrives on screen. No scale, no centering, no word-by-word
-            bold sweep. */}
-        <div
-          style={{
-            opacity: textVisible ? 1 : 0,
-            transitionProperty: "opacity",
-            transitionDuration: `${TEXT_FADE_MS}ms`,
-            transitionTimingFunction: "ease-out",
-          }}
-        >
+        {/* Always visible, no fade -- per the latest direction, text on
+            the landing page doesn't animate at all. */}
+        <div>
           {/* Figma: 'Inter', 33.256px / 40px line-height, -2px top+bottom
               margin -- "THIS IS " is regular (400), the project name is
               bold (700). No width constraint -- the box hugs the text
@@ -400,7 +342,7 @@ export default function ProjectSection({
           </p>
         </div>
         {/* Figma: 'Inter', 400, 20.568px / 25px line-height. Sits at the
-            Wrapper's right edge via `justify-between` on the row above,
+            text row's right edge via `justify-between` on the row above,
             inset by the same px-4/sm:px-8 as the title's left edge (and
             the Header's own padding) -- no arrow, just the label. */}
         <div
@@ -413,7 +355,21 @@ export default function ProjectSection({
         >
           explore more
         </div>
-      </Wrapper>
+      </div>
+
+      {/* Full-cover click target -- sits above everything else in the
+          card (image, gradient, text) so clicking anywhere on the project
+          image navigates to its page, not just the "explore more" label.
+          Transparent; the visual hover/video treatment is still driven by
+          the section's own onMouseEnter/onMouseLeave above. comingSoon
+          sections have nothing to link to, so they stay unclickable. */}
+      {href && (
+        <LinkTag
+          {...linkProps}
+          aria-label={name}
+          className="absolute inset-0 z-10"
+        />
+      )}
     </section>
   );
 }

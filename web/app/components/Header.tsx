@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { PROJECT_LINKS } from "../data/projects";
 
 // At rest, just the icon mark (logo-icon.svg). Hovering anywhere over the
 // header -- not just the logo itself -- swaps it to the full "LINA
@@ -45,14 +46,29 @@ type HeaderProps = {
    * competing for attention, so the compact icon-at-rest treatment isn't
    * needed -- the name can just sit there. */
   staticLogo?: boolean;
+  /** SolCotton's Figma frame (313:639) is a light page -- white
+   * background, black text and logo throughout, unlike every other
+   * project page's dark treatment. Swaps the nav text to black and the
+   * logo to its black variant (logo-*-dark.svg); the hover backing (when
+   * `overlay` is also set) becomes white instead of black so it still
+   * reads as "no backing" against the light page. */
+  light?: boolean;
 };
 
-export default function Header({ overlay = false, staticLogo = false }: HeaderProps) {
+export default function Header({
+  overlay = false,
+  staticLogo = false,
+  light = false,
+}: HeaderProps) {
   // Tracks hover over the whole header, on every page (not gated on
   // `overlay`) -- the logo swap needs it everywhere, even though the
   // black backing below is still landing-page-only.
   const [hovered, setHovered] = useState(false);
   const framed = overlay && hovered;
+  // WORK's own dropdown, listing every project -- separate from the
+  // header-wide `hovered` state above (that one only drives the overlay
+  // backing + logo swap).
+  const [workOpen, setWorkOpen] = useState(false);
 
   return (
     <header
@@ -65,7 +81,9 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
       {overlay && (
         <div
           aria-hidden
-          className="absolute inset-0 bg-black transition-opacity ease-out"
+          className={`absolute inset-0 transition-opacity ease-out ${
+            light ? "bg-white" : "bg-black"
+          }`}
           style={{
             opacity: framed ? 1 : 0,
             transitionDuration: `${FRAME_FADE_MS}ms`,
@@ -85,7 +103,7 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
         {staticLogo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src="/images/logo-whole.svg"
+            src={light ? "/images/logo-whole-dark.svg" : "/images/logo-whole.svg"}
             alt=""
             style={{ height: LOGO_HEIGHT }}
             className="w-auto"
@@ -94,7 +112,7 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/logo-icon.svg"
+              src={light ? "/images/logo-icon-dark.svg" : "/images/logo-icon.svg"}
               alt=""
               style={{
                 height: LOGO_HEIGHT,
@@ -105,7 +123,7 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/logo-whole.svg"
+              src={light ? "/images/logo-whole-dark.svg" : "/images/logo-whole.svg"}
               alt=""
               aria-hidden
               style={{
@@ -140,16 +158,58 @@ export default function Header({ overlay = false, staticLogo = false }: HeaderPr
         styled not-found.tsx) instead of going nowhere. WORK stays a
         <Link> since "/" is a real, always-present route.
       */}
-      <nav className="relative hidden md:flex w-[360px] items-center justify-between text-[15px] leading-[18px] font-light text-white">
+      <nav
+        className={`relative hidden md:flex w-[360px] items-center justify-between text-[15px] leading-[18px] font-light ${
+          light ? "text-black" : "text-white"
+        }`}
+      >
         <a href="/404" className="hover:opacity-70">
           ABOUT
         </a>
         <a href="/404" className="hover:opacity-70">
           PERSONAL PLAYGROUND
         </a>
-        <Link href="/" className="hover:opacity-70">
-          WORK
-        </Link>
+        {/* WORK still goes to the landing page on click (unchanged), but
+            hovering it now reveals an elegant dropdown linking straight
+            to any individual project -- "make me go to any of the
+            projects" -- built off the same shared PROJECT_LINKS list the
+            landing page's own cards are named from, so it can never drift
+            out of sync with what's actually on the site. */}
+        <div
+          className="relative"
+          onMouseEnter={() => setWorkOpen(true)}
+          onMouseLeave={() => setWorkOpen(false)}
+        >
+          <Link href="/" className="hover:opacity-70">
+            WORK
+          </Link>
+          <div
+            className={`absolute right-0 top-full z-50 pt-3 transition-all ease-out ${
+              workOpen
+                ? "pointer-events-auto translate-y-0 opacity-100"
+                : "pointer-events-none -translate-y-1 opacity-0"
+            }`}
+            style={{ transitionDuration: `${FRAME_FADE_MS}ms` }}
+          >
+            <div
+              className={`flex w-max min-w-[220px] flex-col gap-3 border px-5 py-4 backdrop-blur-sm ${
+                light
+                  ? "border-black/10 bg-white/95 text-black"
+                  : "border-white/10 bg-black/90 text-white"
+              }`}
+            >
+              {PROJECT_LINKS.map((project) => (
+                <Link
+                  key={project.href}
+                  href={project.href}
+                  className="whitespace-nowrap text-[13px] font-light tracking-wide opacity-80 transition-opacity hover:opacity-100"
+                >
+                  {project.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
       </nav>
     </header>
   );
