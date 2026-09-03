@@ -19,11 +19,8 @@ import Carousel from "../../components/Carousel";
 // narrower photos, a pair of two, a final full-width shot, and the shared
 // footer.
 //
-// Hero photo and the carousel's third slide were swapped in for the two
-// real renders Nezar sent directly (not from Figma): the "La Maison
-// Shanghai" storefront exterior as the new hero, and an interior retail
-// display shot added to the carousel alongside the two existing interior
-// renders.
+// Hero photo was swapped in for the real render Nezar sent directly (not
+// from Figma): the "La Maison Shanghai" storefront exterior.
 const IMG = "/images";
 
 export default function PsgMaisonShanghaiPage() {
@@ -79,9 +76,7 @@ export default function PsgMaisonShanghaiPage() {
 
       {/* Full-bleed, full-size carousel -- one interior render at a time,
           autoplaying with swipe/drag support, replacing the static
-          side-by-side "Frame 21" pair. Third slide is the real interior
-          retail display shot Nezar sent, added alongside the two
-          existing renders. */}
+          side-by-side "Frame 21" pair. */}
       <Reveal index={1} className="w-full">
         <Carousel
           images={[
@@ -92,10 +87,6 @@ export default function PsgMaisonShanghaiPage() {
             {
               src: `${IMG}/psg-shot-2.jpg`,
               alt: "PSG x La Maison Shanghai, interior render",
-            },
-            {
-              src: `${IMG}/psg-interior-display.jpg`,
-              alt: "PSG x La Maison Shanghai, retail display",
             },
           ]}
           className="aspect-[16/9]"
