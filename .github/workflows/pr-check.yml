@@ -1,21 +1,23 @@
-name: PR check
+name: Portfolio checks
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
 
 jobs:
-  build-only:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # Builds the full multi-stage Dockerfile (Next.js build + PHP/Apache)
-      # to catch broken builds before merge. Does NOT push anywhere --
-      # that only happens on the build-and-deploy workflow, on push to main.
-      - name: Build image (no push)
-        uses: docker/build-push-action@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          context: .
-          push: false
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
